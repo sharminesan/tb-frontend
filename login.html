@@ -2,79 +2,237 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login | Secure TurtleBot Interface</title>
+    <title>Login | TurtleBot Controller</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
-            background-color: #f0f4f8;
-            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             align-items: center;
             justify-content: center;
             height: 100vh;
+            margin: 0;
         }
 
         .login-container {
-            background-color: white;
-            padding: 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2.5rem;
             border-radius: 1rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 400px;
+            backdrop-filter: blur(10px);
         }
 
-        .login-container h2 {
+        .login-header {
             text-align: center;
-            margin-bottom: 1rem;
+            margin-bottom: 2rem;
         }
 
-        input[type="text"],
-        input[type="password"],
-        input[type="submit"] {
+        .login-header h2 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input {
             width: 100%;
             padding: 0.75rem;
-            margin: 0.5rem 0;
+            border: 2px solid #e1e5e9;
             border-radius: 0.5rem;
-            border: 1px solid #ccc;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
         }
 
-        input[type="submit"] {
-            background-color: #007bff;
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
+            transition: transform 0.2s ease;
         }
 
-        input[type="submit"]:hover {
-            background-color: #0056b3;
+        .login-btn:hover {
+            transform: translateY(-2px);
         }
 
-        .error {
-            color: red;
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
             font-size: 0.9rem;
-            margin-bottom: 0.5rem;
+        }
+
+        .success-message {
+            background: #efe;
+            color: #363;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .robot-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
         }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <h2>Login</h2>
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            {% for msg in messages %}
-              <div class="error">{{ msg }}</div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-        <form action="{{ url_for('login') }}" method="POST">
-            <input type="text" name="username" placeholder="Username or Email" required>
-            <input type="password" name="password" placeholder="Password" required>
-            
-            <!-- Uncomment this line when integrating TOTP -->
-            <!-- <input type="text" name="otp" placeholder="Enter OTP" required> -->
+        <div class="login-header">
+            <div class="robot-icon">🤖</div>
+            <h2>TurtleBot Controller</h2>
+            <p>Please sign in to access the robot controls</p>
+        </div>
 
-            <input type="submit" value="Login">
+        <div id="message-container"></div>
+
+        <form id="login-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" value="admin" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" value="admin123" required>
+            </div>
+
+            <button type="submit" class="login-btn" id="login-btn">
+                Sign In
+            </button>
         </form>
+
+        <div class="loading" id="loading">
+            <p>Signing in...</p>
+        </div>
     </div>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:3000'; // Your backend URL
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('login-form');
+            const messageContainer = document.getElementById('message-container');
+            const loginBtn = document.getElementById('login-btn');
+            const loading = document.getElementById('loading');
+
+            // Check if already authenticated
+            checkAuthStatus();
+
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+
+                if (!username || !password) {
+                    showMessage('Please fill in all fields', 'error');
+                    return;
+                }
+
+                // Show loading state
+                loginBtn.disabled = true;
+                loading.style.display = 'block';
+                messageContainer.innerHTML = '';
+
+                try {
+                    const response = await fetch(`${BACKEND_URL}/api/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'include', // This is crucial for session cookies
+                        body: JSON.stringify({
+                            username: username,
+                            password: password
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showMessage('Login successful! Redirecting...', 'success');
+                        // Redirect to the backend URL, not the current origin
+                        setTimeout(() => {
+                            window.location.href = `/`;
+                        }, 500);
+                    } else {
+                        showMessage(data.error || 'Login failed', 'error');
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    showMessage('Connection error. Please try again.', 'error');
+                } finally {
+                    loginBtn.disabled = false;
+                    loading.style.display = 'none';
+                }
+            });
+
+            function showMessage(message, type) {
+                const messageClass = type === 'error' ? 'error-message' : 'success-message';
+                messageContainer.innerHTML = `<div class="${messageClass}">${message}</div>`;
+            }
+
+            async function checkAuthStatus() {
+                try {
+                    const response = await fetch(`${BACKEND_URL}/api/auth/status`, {
+                        credentials: 'include' // Include session cookies
+                    });
+                    const data = await response.json();
+                    
+                    if (data.authenticated) {
+                        console.log('Already authenticated, redirecting...');
+                        // Redirect to the backend URL where the session is valid
+                        window.location.href = `/`;
+                    }
+                } catch (error) {
+                    console.log('Not authenticated');
+                }
+            }
+        });
+    </script>
 </body>
 </html>
