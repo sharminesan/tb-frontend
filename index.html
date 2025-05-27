@@ -53,24 +53,28 @@
               </turtle-button>
               <div></div>
             </div>
-          </div>
-
-          <div class="settings-panel">
-            <h2>Settings</h2>
+          </div>          <div class="settings-panel">
+            <h2>Backend Connection</h2>
             <turtle-form>
               <turtle-text-field
-                label="Robot IP"
-                id="robot-ip"
-                value="localhost"
+                label="Backend URL"
+                id="backend-url"
+                value="http://localhost:3000"
+                readonly
               ></turtle-text-field>
               <turtle-text-field
-                label="Port"
-                id="robot-port"
-                value="9090"
-                type="number"
+                label="Username"
+                id="username"
+                value="admin"
+              ></turtle-text-field>
+              <turtle-text-field
+                label="Password"
+                id="password"
+                value="admin123"
+                type="password"
               ></turtle-text-field>
               <turtle-button variant="primary" id="connect-btn"
-                >Connect</turtle-button
+                >Connect to Backend</turtle-button
               >
               <turtle-button variant="secondary" id="disconnect-btn"
                 >Disconnect</turtle-button
@@ -79,9 +83,7 @@
           </div>
         </div>
       </turtle-card>
-    </turtle-design-system>
-
-    <script src="https://cdn.jsdelivr.net/npm/roslib@1.3.0/build/roslib.min.js"></script>
+    </turtle-design-system>    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script type="module" src="js/index.js"></script>
   </body>
 </html>

@@ -1,12 +1,52 @@
 // TurtleBot Controller JavaScript
 
+// Configuration
+const BACKEND_URL = 'http://localhost:3000'; // Your Node.js backend URL
+
 // Global variables
-let ros = null;
-let cmdVelTopic = null;
-let batteryTopic = null;
+let socket = null;
 let isConnected = false;
+let isAuthenticated = false;
 let speedLinear = 0.2; // m/s
 let speedAngular = 0.5; // rad/s
+
+// Notification system
+function showNotification(message, isError = false) {
+  const notification = document.createElement('div');
+  notification.className = `notification ${isError ? 'error' : 'success'}`;
+  notification.textContent = message;
+  
+  // Style the notification
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    z-index: 1000;
+    max-width: 300px;
+    word-wrap: break-word;
+    ${isError ? 'background-color: #f44336;' : 'background-color: #4CAF50;'}
+  `;
+  
+  document.body.appendChild(notification);
+  
+  // Remove notification after 3 seconds
+  setTimeout(() => {
+    if (notification.parentNode) {
+      notification.parentNode.removeChild(notification);
+    }
+  }, 3000);
+  
+  // Also log to console
+  if (isError) {
+    console.error(message);
+  } else {
+    console.log(message);
+  }
+}
 
 // DOM Elements
 document.addEventListener("DOMContentLoaded", () => {
@@ -14,8 +54,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const disconnectBtn = document.getElementById("disconnect-btn");
   const connectionStatus = document.getElementById("connection-status");
   const batteryStatus = document.getElementById("battery-status");
-  const robotIp = document.getElementById("robot-ip");
-  const robotPort = document.getElementById("robot-port");
+  const backendUrl = document.getElementById("backend-url");
+  const username = document.getElementById("username");
+  const password = document.getElementById("password");
 
   // Movement buttons
   const forwardBtn = document.getElementById("forward-btn");
@@ -23,151 +64,305 @@ document.addEventListener("DOMContentLoaded", () => {
   const leftBtn = document.getElementById("left-btn");
   const rightBtn = document.getElementById("right-btn");
   const stopBtn = document.getElementById("stop-btn");
-
-  // Connect to ROS
+  // Connect to Backend
   connectBtn.addEventListener("click", () => {
-    connectToROS(robotIp.value, robotPort.value);
+    connectToBackend();
   });
 
-  // Disconnect from ROS
+  // Disconnect from Backend
   disconnectBtn.addEventListener("click", () => {
-    disconnectFromROS();
+    disconnectFromBackend();
   });
-
   // Movement control events
-  forwardBtn.addEventListener("click", () => moveRobot(speedLinear, 0));
-  backwardBtn.addEventListener("click", () => moveRobot(-speedLinear, 0));
-  leftBtn.addEventListener("click", () => moveRobot(0, speedAngular));
-  rightBtn.addEventListener("click", () => moveRobot(0, -speedAngular));
-  stopBtn.addEventListener("click", () => moveRobot(0, 0));
-
+  forwardBtn.addEventListener("click", () => sendMoveCommand('forward', { speed: speedLinear }));
+  backwardBtn.addEventListener("click", () => sendMoveCommand('backward', { speed: speedLinear }));
+  leftBtn.addEventListener("click", () => sendMoveCommand('left', { angular_speed: speedAngular }));
+  rightBtn.addEventListener("click", () => sendMoveCommand('right', { angular_speed: speedAngular }));
+  stopBtn.addEventListener("click", () => sendMoveCommand('stop'));
   // Handle keyboard controls
   document.addEventListener("keydown", (event) => {
-    if (!isConnected) return;
+    if (!isConnected || !isAuthenticated) return;
 
     switch (event.key) {
       case "ArrowUp":
-        moveRobot(speedLinear, 0);
+        sendMoveCommand('forward', { speed: speedLinear });
         break;
       case "ArrowDown":
-        moveRobot(-speedLinear, 0);
+        sendMoveCommand('backward', { speed: speedLinear });
         break;
       case "ArrowLeft":
-        moveRobot(0, speedAngular);
+        sendMoveCommand('left', { angular_speed: speedAngular });
         break;
       case "ArrowRight":
-        moveRobot(0, -speedAngular);
+        sendMoveCommand('right', { angular_speed: speedAngular });
         break;
       case " ": // Space bar
-        moveRobot(0, 0);
+        sendMoveCommand('stop');
         break;
     }
   });
+  // Connect to Backend function
+  async function connectToBackend() {
+    try {
+      // Get backend URL and credentials from form
+      const url = backendUrl.value || BACKEND_URL;
+      const user = username.value || 'admin';
+      const pass = password.value || 'admin123';
 
-  // Connect to ROS function
-  function connectToROS(ip, port) {
-    // Disconnect if already connected
-    if (ros) {
-      disconnectFromROS();
-    }
+      // First, try to authenticate
+      const loginResponse = await fetch(`${url}/api/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          username: user,
+          password: pass
+        })
+      });
 
-    // Create ROS connection
-    ros = new ROSLIB.Ros({
-      url: `ws://${ip}:${port}`,
-    });
+      if (!loginResponse.ok) {
+        throw new Error('Authentication failed');
+      }
 
-    // Connection event handlers
-    ros.on("connection", () => {
-      console.log("Connected to websocket server.");
-      isConnected = true;
-      connectionStatus.textContent = "Connected";
-      connectionStatus.classList.add("connected");
+      const loginData = await loginResponse.json();
+      isAuthenticated = true;      // Initialize Socket.IO connection
+      socket = io(url);
 
-      // Initialize topics
-      initializeTopics();
-    });
+      socket.on('connect', () => {
+        console.log('Connected to backend server');
+        isConnected = true;
+        connectionStatus.textContent = "Connected";
+        connectionStatus.classList.add("connected");
+        showNotification('Connected to TurtleBot backend');
+      });
 
-    ros.on("error", (error) => {
-      console.log("Error connecting to websocket server: ", error);
+      socket.on('disconnect', () => {
+        console.log('Disconnected from backend server');
+        isConnected = false;
+        isAuthenticated = false;
+        connectionStatus.textContent = "Disconnected";
+        connectionStatus.classList.remove("connected");
+        showNotification('Disconnected from backend', true);
+      });
+
+      socket.on('status_update', (status) => {
+        console.log('Status update:', status);
+        updateRobotStatus(status);
+      });
+
+      socket.on('battery_update', (batteryData) => {
+        updateBatteryStatus(batteryData);
+      });      socket.on('odom_update', (odomData) => {
+        console.log('Odometry update:', odomData);
+        updateOdometryDisplay(odomData);
+      });
+
+      socket.on('laser_update', (laserData) => {
+        console.log('Laser scan update received');
+        // You can add laser visualization here if needed
+      });
+
+      socket.on('move_response', (response) => {
+        console.log('Move response:', response);
+        if (!response.success) {
+          showNotification('Movement command failed', true);
+        }
+      });
+
+      socket.on('emergency_stop_activated', (data) => {
+        showNotification('Emergency stop activated!', true);
+      });
+
+      socket.on('error', (error) => {
+        console.error('Socket error:', error);
+        showNotification(`Error: ${error.message}`, true);
+      });
+
+    } catch (error) {
+      console.error('Connection failed:', error);
       isConnected = false;
+      isAuthenticated = false;
       connectionStatus.textContent = "Error";
       connectionStatus.classList.remove("connected");
-    });
-
-    ros.on("close", () => {
-      console.log("Connection to websocket server closed.");
-      isConnected = false;
-      connectionStatus.textContent = "Disconnected";
-      connectionStatus.classList.remove("connected");
-    });
+      showNotification(`Connection failed: ${error.message}`, true);
+    }
   }
+  // Disconnect from Backend function
+  async function disconnectFromBackend() {
+    try {
+      // Get backend URL from form
+      const url = backendUrl.value || BACKEND_URL;
+      
+      // Send logout request
+      await fetch(`${url}/api/logout`, {
+        method: 'POST',
+        credentials: 'include'
+      });
 
-  // Disconnect from ROS function
-  function disconnectFromROS() {
-    if (ros) {
-      ros.close();
-      ros = null;
-      cmdVelTopic = null;
-      batteryTopic = null;
+      if (socket) {
+        socket.disconnect();
+        socket = null;
+      }
+
       isConnected = false;
+      isAuthenticated = false;
       connectionStatus.textContent = "Disconnected";
       connectionStatus.classList.remove("connected");
       batteryStatus.textContent = "Unknown";
+      showNotification('Disconnected from backend');
+
+    } catch (error) {
+      console.error('Disconnect error:', error);
+      showNotification(`Disconnect error: ${error.message}`, true);
     }
   }
 
-  // Initialize ROS topics
-  function initializeTopics() {
-    // Command velocity topic for movement
-    cmdVelTopic = new ROSLIB.Topic({
-      ros: ros,
-      name: "/cmd_vel", // Standard topic for TurtleBot 1
-      messageType: "geometry_msgs/Twist",
-    });
-
-    // Battery status topic
-    batteryTopic = new ROSLIB.Topic({
-      ros: ros,
-      name: "/battery_state", // May need to be adjusted depending on TurtleBot configuration
-      messageType: "sensor_msgs/BatteryState",
-    });
-
-    // Subscribe to battery updates
-    batteryTopic.subscribe((message) => {
-      batteryStatus.textContent = `${Math.round(
-        message.percentage * 100
-      )}% (${message.voltage.toFixed(2)}V)`;
-    });
-  }
-
-  // Send movement command to the robot
-  function moveRobot(linear, angular) {
-    if (!isConnected || !cmdVelTopic) {
+  // Send movement command to backend
+  function sendMoveCommand(action, parameters = {}) {
+    if (!isConnected || !socket) {
+      showNotification('Not connected to backend', true);
       return;
     }
 
-    const twist = new ROSLIB.Message({
-      linear: {
-        x: linear,
-        y: 0,
-        z: 0,
-      },
-      angular: {
-        x: 0,
-        y: 0,
-        z: angular,
-      },
+    socket.emit('move_command', {
+      action: action,
+      parameters: parameters
     });
-
-    cmdVelTopic.publish(twist);
   }
+
+  // Send movement command via REST API (alternative method)
+  async function sendMoveCommandREST(action, parameters = {}) {
+    if (!isAuthenticated) {
+      showNotification('Not authenticated', true);
+      return;
+    }    try {
+      const response = await fetch(`${BACKEND_URL}/api/move/${action}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify(parameters)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Move command result:', result);
+
+    } catch (error) {
+      console.error('Move command failed:', error);
+      showNotification(`Move command failed: ${error.message}`, true);
+    }
+  }
+
+  // Update robot status display
+  function updateRobotStatus(status) {
+    if (status.is_connected) {
+      connectionStatus.textContent = status.ros_mode ? "ROS Connected" : "Simulation Mode";
+      connectionStatus.classList.add("connected");
+    } else {
+      connectionStatus.textContent = "Robot Disconnected";
+      connectionStatus.classList.remove("connected");
+    }
+  }
+  // Update battery status display
+  function updateBatteryStatus(batteryData) {
+    if (batteryData) {
+      const percentage = Math.round(batteryData.percentage * 100);
+      const voltage = batteryData.voltage.toFixed(2);
+      batteryStatus.textContent = `${percentage}% (${voltage}V)`;
+      
+      // Update battery color based on level
+      batteryStatus.style.color = percentage > 30 ? '#4CAF50' : percentage > 15 ? '#FF9800' : '#f44336';
+    }
+  }
+
+  // Update odometry display
+  function updateOdometryDisplay(odomData) {
+    if (odomData) {
+      const positionText = `Position: X=${odomData.position.x.toFixed(2)}, Y=${odomData.position.y.toFixed(2)}`;
+      console.log(positionText);
+      
+      // If you have an odometry display element, update it here
+      const odomElement = document.getElementById('odometry-status');
+      if (odomElement) {
+        odomElement.textContent = positionText;
+      }
+    }
+  }
+
+  // Move robot using Socket.IO with custom parameters
+  function moveRobot(linear, angular) {
+    if (!isConnected || !socket) {
+      showNotification('Not connected to backend', true);
+      return;
+    }
+
+    socket.emit('move_command', {
+      action: 'custom',
+      parameters: {
+        linear_x: linear,
+        linear_y: 0,
+        linear_z: 0,
+        angular_x: 0,
+        angular_y: 0,
+        angular_z: angular
+      }
+    });
+  }
+
+  // Emergency stop function
+  function emergencyStop() {
+    if (socket) {
+      socket.emit('emergency_stop');
+    } else {
+      // Fallback to REST API
+      fetch(`${BACKEND_URL}/api/emergency_stop`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      }).then(response => response.json())
+        .then(result => {
+          showNotification('Emergency stop activated!', true);
+        }).catch(error => {
+          console.error('Emergency stop failed:', error);
+        });
+    }
+  }
+
+  // Add emergency stop to space bar
+  document.addEventListener("keydown", (event) => {
+    if (!isConnected || !isAuthenticated) return;
+
+    switch (event.key) {
+      case "ArrowUp":
+        event.preventDefault();
+        sendMoveCommand('forward', { speed: speedLinear });
+        break;
+      case "ArrowDown":
+        event.preventDefault();
+        sendMoveCommand('backward', { speed: speedLinear });
+        break;
+      case "ArrowLeft":
+        event.preventDefault();
+        sendMoveCommand('left', { angular_speed: speedAngular });
+        break;
+      case "ArrowRight":
+        event.preventDefault();
+        sendMoveCommand('right', { angular_speed: speedAngular });
+        break;
+      case " ": // Space bar
+        event.preventDefault();
+        emergencyStop();
+        break;
+      case "s":
+      case "S":
+        event.preventDefault();
+        sendMoveCommand('stop');
+        break;
+    }
+  });
 });
-
-// Display notification for connection status
-function showNotification(message, isError = false) {
-  // For now, this just logs to console, but could be enhanced with TurtleUI components
-  console.log(message);
-}
-
-// Export any functions that might be needed elsewhere
-export { showNotification };
