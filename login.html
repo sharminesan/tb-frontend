@@ -215,20 +215,20 @@
                 // Get ID token and send to backend
                 const idToken = await user.getIdToken();
                 
-                const response = await fetch('/verify-firebase-token', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ idToken: idToken })
-                });
+                // const response = await fetch('/verify-firebase-token', {
+                //     method: 'POST',
+                //     headers: {
+                //         'Content-Type': 'application/json',
+                //     },
+                //     body: JSON.stringify({ idToken: idToken })
+                // });
                 
-                if (response.ok) {
-                    window.location.href = '/dashboard';
-                } else {
-                    throw new Error('Backend verification failed');
-                }
-                
+                // if (response.ok) {
+                //     window.location.href = '/dashboard';
+                // } else {
+                //     throw new Error('Backend verification failed');
+                // }
+                window.location.href = '/';
             } catch (error) {
                 showMessage(error.message);
             }
