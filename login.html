@@ -4,6 +4,35 @@
     <meta charset="UTF-8">
     <title>Login | Secure TurtleBot Interface</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        
+        // Your Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyACSIvJ7mJukK37rynY-Q-rM7gUSgKPuOk",
+            authDomain: "turtlebot-8070c.firebaseapp.com",
+            projectId: "turtlebot-8070c",
+            storageBucket: "turtlebot-8070c.firebasestorage.app",
+            messagingSenderId: "781667383771",
+            appId: "1:781667383771:web:09d6ece6b31d3b59c3cffe"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const googleProvider = new GoogleAuthProvider();
+        
+        // Make auth available globally
+        window.firebaseAuth = auth;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.GoogleAuthProvider = GoogleAuthProvider;
+        window.signInWithPopup = signInWithPopup;
+        window.googleProvider = googleProvider;
+    </script>
+    
     <style>
         body {
             background-color: #f0f4f8;
@@ -28,14 +57,16 @@
             margin-bottom: 1rem;
         }
 
-        input[type="text"],
+        input[type="email"],
         input[type="password"],
-        input[type="submit"] {
+        input[type="submit"],
+        .google-btn {
             width: 100%;
             padding: 0.75rem;
             margin: 0.5rem 0;
             border-radius: 0.5rem;
             border: 1px solid #ccc;
+            box-sizing: border-box;
         }
 
         input[type="submit"] {
@@ -49,32 +80,167 @@
             background-color: #0056b3;
         }
 
+        .google-btn {
+            background-color: #db4437;
+            color: white;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+        }
+
+        .google-btn:hover {
+            background-color: #c23321;
+        }
+
         .error {
             color: red;
             font-size: 0.9rem;
             margin-bottom: 0.5rem;
+        }
+
+        .success {
+            color: green;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 1rem 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #ccc;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 1rem;
+            color: #666;
         }
     </style>
 </head>
 <body>
     <div class="login-container">
         <h2>Login</h2>
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            {% for msg in messages %}
-              <div class="error">{{ msg }}</div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-        <form action="{{ url_for('login') }}" method="POST">
-            <input type="text" name="username" placeholder="Username or Email" required>
-            <input type="password" name="password" placeholder="Password" required>
-            
-            <!-- Uncomment this line when integrating TOTP -->
-            <!-- <input type="text" name="otp" placeholder="Enter OTP" required> -->
-
-            <input type="submit" value="Login">
+        
+        <div id="message-container"></div>
+        
+        <form id="loginForm">
+            <input type="email" id="email" name="email" placeholder="Email" required>
+            <input type="password" id="password" name="password" placeholder="Password" required>
+            <input type="submit" value="Login with Email">
         </form>
+        
+        <div class="divider">
+            <span>or</span>
+        </div>
+        
+        <button class="google-btn" onclick="signInWithGoogle()">
+            Sign in with Google
+        </button>
+        <div class="login-link" style="text-align: center; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #eee;">
+            Don't have an account? <a href="register.html" style="color: #007bff; text-decoration: none;">Create one here</a>
+        </div>
     </div>
+
+    <script>
+        // Display messages
+        function showMessage(message, type = 'error') {
+            const messageContainer = document.getElementById('message-container');
+            messageContainer.innerHTML = `<div class="${type}">${message}</div>`;
+        }
+
+        // Email/Password login
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const userCredential = await signInWithEmailAndPassword(window.firebaseAuth, email, password);
+                const user = userCredential.user;
+                
+                showMessage('Login successful! Redirecting...', 'success');
+                
+                // Get ID token and send to backend
+                const idToken = await user.getIdToken();
+
+                window.location.href = '/';
+                
+            //    const BACKEND_URL = 'http://localhost:3000'; 
+                
+            //     // Send token to your backend for verification
+            //     const response = await fetch(`${BACKEND_URL}/verify-firebase-token`, {
+            //         method: 'POST',
+            //         headers: {
+            //             'Content-Type': 'application/json',
+            //         },
+            //         body: JSON.stringify({ 
+            //             idToken: idToken,
+            //             isNewUser: true,
+            //         })
+            //     });
+                
+            //     if (response.ok) {
+            //         // Redirect to dashboard or main page
+            //         window.location.href = '/dashboard';
+            //     } else {
+            //         throw new Error('Backend verification failed');
+            //     }
+                
+            } catch (error) {
+                showMessage(error.message);
+            }
+        });
+
+        // Google Sign-In
+        async function signInWithGoogle() {
+            try {
+                const result = await signInWithPopup(window.firebaseAuth, window.googleProvider);
+                const user = result.user;
+                
+                showMessage('Google sign-in successful! Redirecting...', 'success');
+                
+                // Get ID token and send to backend
+                const idToken = await user.getIdToken();
+                
+                const response = await fetch('/verify-firebase-token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ idToken: idToken })
+                });
+                
+                if (response.ok) {
+                    window.location.href = '/dashboard';
+                } else {
+                    throw new Error('Backend verification failed');
+                }
+                
+            } catch (error) {
+                showMessage(error.message);
+            }
+        }
+
+        // Check if user is already logged in
+        window.firebaseAuth.onAuthStateChanged((user) => {
+            if (user) {
+                // User is signed in, redirect to dashboard
+                window.location.href = '/';
+            }
+        });
+    </script>
 </body>
 </html>
