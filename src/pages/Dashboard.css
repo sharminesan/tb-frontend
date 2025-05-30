@@ -258,7 +258,8 @@
 }
 
 .connect-btn,
-.disconnect-btn {
+.disconnect-btn,
+.emergency-btn {
   padding: 12px 20px;
   border: none;
   border-radius: 10px;
@@ -288,6 +289,19 @@
 .disconnect-btn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
+}
+
+.emergency-btn {
+  background: linear-gradient(135deg, #f44336, #d32f2f);
+  color: white;
+  box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+  margin-top: 10px;
+}
+
+.emergency-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(244, 67, 54, 0.5);
+  background: linear-gradient(135deg, #e53935, #c62828);
 }
 
 .connect-btn:disabled,

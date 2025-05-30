@@ -1,5 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
+/* Reset form styles specifically for auth pages */
+.auth-container input[type="email"],
+.auth-container input[type="password"],
+.auth-container input[type="text"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: #ffffff !important;
+  color: #1f2937 !important;
+  border: 2px solid #e5e7eb !important;
+}
+
 .auth-container {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
@@ -83,8 +95,14 @@
   font-size: 1rem;
   font-weight: 400;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: #ffffff;
-  color: #1f2937;
+  background: #ffffff !important;
+  color: #1f2937 !important;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  min-height: 56px;
+  line-height: 1.5;
 }
 
 .form-group input:focus {
@@ -92,11 +110,28 @@
   border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
   transform: translateY(-1px);
+  background: #ffffff !important;
 }
 
 .form-group input::placeholder {
-  color: #9ca3af;
+  color: #9ca3af !important;
   font-weight: 400;
+  opacity: 1;
+}
+
+.form-group input::-webkit-input-placeholder {
+  color: #9ca3af !important;
+  opacity: 1;
+}
+
+.form-group input::-moz-placeholder {
+  color: #9ca3af !important;
+  opacity: 1;
+}
+
+.form-group input:-ms-input-placeholder {
+  color: #9ca3af !important;
+  opacity: 1;
 }
 
 .submit-btn {
@@ -110,7 +145,6 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  margin-bottom: 1.5rem;
   position: relative;
   overflow: hidden;
 }
