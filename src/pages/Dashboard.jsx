@@ -11,7 +11,7 @@ export default function Dashboard() {
   const [connectionStatus, setConnectionStatus] = useState('Disconnected')
   const [batteryStatus, setBatteryStatus] = useState('Unknown')
   const [robotStatus, setRobotStatus] = useState(null)
-  const [backendUrl] = useState('http://localhost:3000')
+  const [backendUrl] = useState('http://192.168.1.15:4000')
   useEffect(() => {
     // Initialize socket connection without backend authentication
     const newSocket = io(backendUrl)
