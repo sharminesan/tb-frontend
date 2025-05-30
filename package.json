@@ -1,7 +1,6 @@
 {
-  "name": "turtlebot",
+  "name": "turtlebot-react",
   "version": "1.0.0",
-  "main": "index.js",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -13,9 +12,16 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@turtleui/webcomponents": "^latest"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.8.0",
+    "firebase": "^10.7.1",
+    "socket.io-client": "^4.7.4"
   },
   "devDependencies": {
-    "vite": "^latest"
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite": "^5.0.8"
   }
 }

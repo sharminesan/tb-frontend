@@ -2,88 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TurtleBot Controller</title>
-    <link rel="stylesheet" href="css/styles.css" />
   </head>
   <body>
-    <turtle-design-system>
-      <turtle-card>
-        <h1 slot="header">TurtleBot Controller</h1>
-
-        <div class="controller-wrapper">
-          <div class="status-panel">
-            <h2>Status</h2>
-            <turtle-list>
-              <turtle-list-item>
-                <div slot="title">Connection</div>
-                <div slot="description" id="connection-status">
-                  Disconnected
-                </div>
-              </turtle-list-item>
-              <turtle-list-item>
-                <div slot="title">Battery</div>
-                <div slot="description" id="battery-status">Unknown</div>
-              </turtle-list-item>
-            </turtle-list>
-          </div>
-
-          <div class="control-panel">
-            <h2>Movement Controls</h2>
-            <div class="controls-grid">
-              <div></div>
-              <turtle-button class="control-btn" id="forward-btn">
-                <turtle-icon name="arrow-up"></turtle-icon>
-              </turtle-button>
-              <div></div>
-
-              <turtle-button class="control-btn" id="left-btn">
-                <turtle-icon name="arrow-left"></turtle-icon>
-              </turtle-button>
-              <turtle-button class="control-btn" id="stop-btn">
-                <turtle-icon name="x-circle"></turtle-icon>
-              </turtle-button>
-              <turtle-button class="control-btn" id="right-btn">
-                <turtle-icon name="arrow-right"></turtle-icon>
-              </turtle-button>
-
-              <div></div>
-              <turtle-button class="control-btn" id="backward-btn">
-                <turtle-icon name="arrow-down"></turtle-icon>
-              </turtle-button>
-              <div></div>
-            </div>
-          </div>          <div class="settings-panel">
-            <h2>Backend Connection</h2>
-            <turtle-form>
-              <turtle-text-field
-                label="Backend URL"
-                id="backend-url"
-                value="http://localhost:3000"
-                readonly
-              ></turtle-text-field>
-              <turtle-text-field
-                label="Username"
-                id="username"
-                value="admin"
-              ></turtle-text-field>
-              <turtle-text-field
-                label="Password"
-                id="password"
-                value="admin123"
-                type="password"
-              ></turtle-text-field>
-              <turtle-button variant="primary" id="connect-btn"
-                >Connect to Backend</turtle-button
-              >
-              <turtle-button variant="secondary" id="disconnect-btn"
-                >Disconnect</turtle-button
-              >
-            </turtle-form>
-          </div>
-        </div>
-      </turtle-card>
-    </turtle-design-system>    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
-    <script type="module" src="js/index.js"></script>
-  </body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>  </body>
 </html>
