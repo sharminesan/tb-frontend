@@ -77,7 +77,8 @@
 
 .controller-wrapper {
   display: grid;
-  grid-template-columns: 1fr 1fr 2fr 1fr;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto 1fr;
   gap: 20px;
   margin-top: 20px;
 }
@@ -86,28 +87,29 @@
 .status-panel {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 15px;
-  padding: 25px;
+  padding: 20px;
   border: 1px solid rgba(255, 255, 255, 0.2);
+  height: fit-content;
 }
 
 .status-panel h2 {
   color: white;
-  font-size: 1.4rem;
-  margin-bottom: 20px;
+  font-size: 1.2rem;
+  margin-bottom: 15px;
   text-align: center;
 }
 
 .status-list {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 10px;
 }
 
 .status-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 15px;
+  padding: 8px 12px;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -140,36 +142,37 @@
 .control-panel {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 15px;
-  padding: 25px;
+  padding: 20px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   display: flex;
   flex-direction: column;
   align-items: center;
+  height: fit-content;
 }
 
 .control-panel h2 {
   color: white;
-  font-size: 1.4rem;
-  margin-bottom: 30px;
+  font-size: 1.2rem;
+  margin-bottom: 20px;
   text-align: center;
 }
 
 .controls-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
+  gap: 10px;
   width: 100%;
-  max-width: 300px;
+  max-width: 240px;
 }
 
 .control-btn {
-  width: 80px;
-  height: 80px;
+  width: 60px;
+  height: 60px;
   border: none;
   border-radius: 15px;
   background: linear-gradient(135deg, #4facfe, #00f2fe);
   color: white;
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -306,6 +309,43 @@
 
 .connect-btn:disabled,
 .disconnect-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* URL Input Group */
+.url-input-group {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.url-input-group input {
+  flex: 1;
+}
+
+.reconnect-btn {
+  padding: 12px 16px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2196f3, #1976d2);
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+}
+
+.reconnect-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+  background: linear-gradient(135deg, #1e88e5, #1565c0);
+}
+
+.reconnect-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
@@ -490,6 +530,17 @@
 }
 
 /* Responsive Design */
+@media (max-width: 1024px) {
+  .controller-wrapper {
+    gap: 15px;
+  }
+
+  .pattern-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+  }
+}
+
 @media (max-width: 768px) {
   .dashboard {
     padding: 10px;
@@ -537,10 +588,19 @@
   .controls-grid {
     max-width: 200px;
   }
-
   .control-btn {
     width: 60px;
     height: 60px;
     font-size: 1.2rem;
+  }
+
+  .url-input-group {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .reconnect-btn {
+    padding: 10px 12px;
+    font-size: 0.8rem;
   }
 }

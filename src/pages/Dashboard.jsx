@@ -11,7 +11,7 @@ export default function Dashboard() {
   const [connectionStatus, setConnectionStatus] = useState("Disconnected");
   const [batteryStatus, setBatteryStatus] = useState("Unknown");
   const [robotStatus, setRobotStatus] = useState(null);
-  const [backendUrl] = useState("http://localhost:4000");
+  const [backendUrl, setBackendUrl] = useState("http://localhost:4000");
 
   // State for dance pattern controls
   const [patternSettings, setPatternSettings] = useState({
@@ -166,6 +166,62 @@ export default function Dashboard() {
     if (socket) {
       socket.disconnect();
     }
+  };
+
+  const handleBackendUrlChange = (e) => {
+    const newUrl = e.target.value;
+    setBackendUrl(newUrl);
+
+    // Disconnect current socket if connected
+    if (socket && socket.connected) {
+      socket.disconnect();
+    }
+  };
+
+  const reconnectWithNewUrl = () => {
+    // Disconnect existing socket
+    if (socket) {
+      socket.disconnect();
+      socket.close();
+    }
+
+    // Create new socket connection with updated URL
+    const newSocket = io(backendUrl);
+    setSocket(newSocket);
+
+    // Set up event listeners for the new socket
+    newSocket.on("connect", () => {
+      setConnectionStatus("Connected");
+      console.log("Connected to robot backend via Socket.IO");
+      fetchRobotStatus();
+      fetchSensorData();
+    });
+
+    newSocket.on("disconnect", () => {
+      setConnectionStatus("Disconnected");
+      console.log("Disconnected from robot backend");
+    });
+
+    // Listen for battery updates
+    newSocket.on("battery_update", (data) => {
+      setBatteryStatus(`${Math.round(data.percentage * 100)}%`);
+    });
+
+    // Listen for status updates
+    newSocket.on("status_update", (data) => {
+      setRobotStatus(data);
+    });
+
+    // Listen for movement responses
+    newSocket.on("move_response", (data) => {
+      console.log("Move response:", data);
+    });
+
+    // Listen for emergency stop notifications
+    newSocket.on("emergency_stop_activated", (data) => {
+      console.log("Emergency stop activated:", data);
+      alert("Emergency stop activated!");
+    });
   };
 
   // Pattern management functions
@@ -542,9 +598,25 @@ export default function Dashboard() {
           <div className="settings-panel">
             <h2>Robot Connection</h2>
             <div className="settings-form">
+              {" "}
               <div className="form-group">
                 <label>Robot Backend URL</label>
-                <input type="text" value={backendUrl} readOnly />
+                <div className="url-input-group">
+                  <input
+                    type="text"
+                    value={backendUrl}
+                    onChange={handleBackendUrlChange}
+                    placeholder="http://localhost:4000"
+                  />
+                  <button
+                    className="reconnect-btn"
+                    onClick={reconnectWithNewUrl}
+                    disabled={!backendUrl}
+                    title="Reconnect with new URL"
+                  >
+                    🔄 Reconnect
+                  </button>
+                </div>
               </div>
               <div className="form-group">
                 <label>Authenticated User</label>
