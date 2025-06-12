@@ -98,27 +98,6 @@ export default function Register() {
               required
             />
           </div>
-          <div className="form-group">
-            <label htmlFor="role" className="form-label">
-              Select Your Role
-            </label>
-            <select
-              id="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="role-select"
-              required
-            >
-              <option value="user">👤 User - Basic access</option>
-              <option value="moderator">
-                🛡️ Moderator - Advanced controls
-              </option>
-              <option value="admin">👑 Admin - Full system access</option>
-            </select>
-            <small className="role-hint">
-              Note: Admin and Moderator roles require approval
-            </small>
-          </div>
           <button type="submit" className="submit-btn" disabled={loading}>
             {loading ? "Creating Account..." : "Create Account"}
           </button>
