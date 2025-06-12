@@ -5,7 +5,7 @@ import io from "socket.io-client";
 import "./Dashboard.css";
 
 export default function Dashboard() {
-  const { currentUser, logout } = useAuth();
+  const { currentUser, userRole, logout } = useAuth();
   const navigate = useNavigate();
   const [socket, setSocket] = useState(null);
   const [connectionStatus, setConnectionStatus] = useState("Disconnected");
@@ -295,17 +295,17 @@ export default function Dashboard() {
     <div className="dashboard">
       <div className="dashboard-container">
         <header className="dashboard-header">
-          <h1>TurtleBot Controller</h1>
+          <h1>TurtleBot Controller</h1>{" "}
           <div className="user-info">
             <span>
               Welcome, {currentUser?.displayName || currentUser?.email}
+              {userRole && <span className="user-role">({userRole})</span>}
             </span>
             <button onClick={handleLogout} className="logout-btn">
               Logout
             </button>
           </div>
         </header>
-
         <div className="controller-wrapper">
           <div className="status-panel">
             <h2>Status</h2>
@@ -330,7 +330,6 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
-
           <div className="control-panel">
             <h2>Movement Controls</h2>
             <div className="controls-grid">
@@ -377,7 +376,6 @@ export default function Dashboard() {
               <div></div>
             </div>
           </div>
-
           <div className="dance-patterns-panel">
             <h2>🕺 Dance Patterns</h2>
 
@@ -594,7 +592,6 @@ export default function Dashboard() {
               </button>
             </div>
           </div>
-
           <div className="settings-panel">
             <h2>Robot Connection</h2>
             <div className="settings-form">
@@ -648,8 +645,64 @@ export default function Dashboard() {
                 </button>
               </div>
             </div>
+          </div>{" "}
+        </div>{" "}
+        {/* Role-based sections */}
+        {userRole === "admin" && (
+          <div className="admin-panel">
+            <h2>🔧 Admin Controls</h2>
+            <div className="admin-features">
+              <button
+                className="admin-btn"
+                onClick={() => window.open("/admin", "_blank")}
+              >
+                👥 Admin Panel
+              </button>
+              <button
+                className="admin-btn"
+                onClick={() => alert("System settings feature")}
+              >
+                ⚙️ System Settings
+              </button>
+              <button
+                className="admin-btn"
+                onClick={() => alert("Robot diagnostics feature")}
+              >
+                🔍 Robot Diagnostics
+              </button>
+            </div>
           </div>
-        </div>
+        )}
+        {/* Temporary admin promotion for all users */}
+        {userRole === "user" && (
+          <div className="temp-admin-section">
+            <p>
+              <strong>Debug:</strong> If you should be an admin, visit:{" "}
+              <a href="/admin" target="_blank" rel="noopener noreferrer">
+                Admin Panel
+              </a>
+            </p>
+          </div>
+        )}
+        {(userRole === "moderator" || userRole === "admin") && (
+          <div className="moderator-panel">
+            <h2>🛡️ Moderator Features</h2>
+            <div className="moderator-features">
+              <button
+                className="moderator-btn"
+                onClick={() => alert("Advanced controls feature")}
+              >
+                🎛️ Advanced Controls
+              </button>
+              <button
+                className="moderator-btn"
+                onClick={() => alert("Pattern management feature")}
+              >
+                📋 Pattern Management
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

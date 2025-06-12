@@ -1,53 +1,54 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
-import './Auth.css'
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import "./Auth.css";
 
 export default function Register() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [fullName, setFullName] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const { signup, updateUserProfile, loginWithGoogle } = useAuth()
-  const navigate = useNavigate()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [role, setRole] = useState("user");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { signup, updateUserProfile, loginWithGoogle } = useAuth();
+  const navigate = useNavigate();
 
   async function handleSubmit(e) {
-    e.preventDefault()
+    e.preventDefault();
 
     if (password !== confirmPassword) {
-      return setError('Passwords do not match')
+      return setError("Passwords do not match");
     }
 
     if (password.length < 6) {
-      return setError('Password must be at least 6 characters')
+      return setError("Password must be at least 6 characters");
     }
 
     try {
-      setError('')
-      setLoading(true)
-      const { user } = await signup(email, password)
-      await updateUserProfile({ displayName: fullName })
-      navigate('/dashboard')
+      setError("");
+      setLoading(true);
+      const { user } = await signup(email, password, role);
+      await updateUserProfile({ displayName: fullName });
+      navigate("/dashboard");
     } catch (error) {
-      setError('Failed to create account: ' + error.message)
+      setError("Failed to create account: " + error.message);
     }
 
-    setLoading(false)
+    setLoading(false);
   }
 
   async function handleGoogleSignUp() {
     try {
-      setError('')
-      setLoading(true)
-      await loginWithGoogle()
-      navigate('/dashboard')
+      setError("");
+      setLoading(true);
+      await loginWithGoogle();
+      navigate("/dashboard");
     } catch (error) {
-      setError('Failed to sign up with Google: ' + error.message)
+      setError("Failed to sign up with Google: " + error.message);
     }
 
-    setLoading(false)
+    setLoading(false);
   }
 
   return (
@@ -57,9 +58,9 @@ export default function Register() {
           <h2>Create Account</h2>
           <p>Join TurtleBot to get started</p>
         </div>
-        
+
         {error && <div className="error-message">{error}</div>}
-        
+
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <input
@@ -87,7 +88,7 @@ export default function Register() {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-          </div>
+          </div>{" "}
           <div className="form-group">
             <input
               type="password"
@@ -97,31 +98,48 @@ export default function Register() {
               required
             />
           </div>
-          <button 
-            type="submit" 
-            className="submit-btn"
-            disabled={loading}
-          >
-            {loading ? 'Creating Account...' : 'Create Account'}
+          <div className="form-group">
+            <label htmlFor="role" className="form-label">
+              Select Your Role
+            </label>
+            <select
+              id="role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="role-select"
+              required
+            >
+              <option value="user">👤 User - Basic access</option>
+              <option value="moderator">
+                🛡️ Moderator - Advanced controls
+              </option>
+              <option value="admin">👑 Admin - Full system access</option>
+            </select>
+            <small className="role-hint">
+              Note: Admin and Moderator roles require approval
+            </small>
+          </div>
+          <button type="submit" className="submit-btn" disabled={loading}>
+            {loading ? "Creating Account..." : "Create Account"}
           </button>
         </form>
-        
+
         <div className="divider">
           <span>or</span>
         </div>
-        
-        <button 
+
+        <button
           className="google-btn"
           onClick={handleGoogleSignUp}
           disabled={loading}
         >
           Sign up with Google
         </button>
-        
+
         <div className="auth-link">
           Already have an account? <Link to="/login">Sign in here</Link>
         </div>
       </div>
     </div>
-  )
+  );
 }
