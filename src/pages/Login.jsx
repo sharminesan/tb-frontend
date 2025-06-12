@@ -1,42 +1,42 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
-import './Auth.css'
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import "./Auth.css";
 
 export default function Login() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const { login, loginWithGoogle } = useAuth()
-  const navigate = useNavigate()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { login, loginWithGoogle } = useAuth();
+  const navigate = useNavigate();
 
   async function handleSubmit(e) {
-    e.preventDefault()
+    e.preventDefault();
 
     try {
-      setError('')
-      setLoading(true)
-      await login(email, password)
-      navigate('/dashboard')
+      setError("");
+      setLoading(true);
+      await login(email, password);
+      navigate("/dashboard");
     } catch (error) {
-      setError('Failed to log in: ' + error.message)
+      setError("Failed to log in: " + error.message);
     }
 
-    setLoading(false)
+    setLoading(false);
   }
 
   async function handleGoogleSignIn() {
     try {
-      setError('')
-      setLoading(true)
-      await loginWithGoogle()
-      navigate('/dashboard')
+      setError("");
+      setLoading(true);
+      await loginWithGoogle();
+      navigate("/dashboard");
     } catch (error) {
-      setError('Failed to log in with Google: ' + error.message)
+      setError("Failed to log in with Google: " + error.message);
     }
 
-    setLoading(false)
+    setLoading(false);
   }
 
   return (
@@ -46,9 +46,9 @@ export default function Login() {
           <h2>Welcome Back</h2>
           <p>Sign in to access your TurtleBot dashboard</p>
         </div>
-        
+
         {error && <div className="error-message">{error}</div>}
-        
+
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <input
@@ -68,31 +68,27 @@ export default function Login() {
               required
             />
           </div>
-          <button 
-            type="submit" 
-            className="submit-btn"
-            disabled={loading}
-          >
-            {loading ? 'Signing in...' : 'Sign In'}
+          <button type="submit" className="submit-btn" disabled={loading}>
+            {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
-        
+
         <div className="divider">
           <span>or continue with</span>
         </div>
-        
-        <button 
+
+        <button
           className="google-btn"
           onClick={handleGoogleSignIn}
           disabled={loading}
         >
           Sign in with Google
         </button>
-        
+
         <div className="auth-link">
           Don't have an account? <Link to="/register">Create one here</Link>
         </div>
       </div>
     </div>
-  )
+  );
 }

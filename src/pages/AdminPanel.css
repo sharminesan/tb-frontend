@@ -138,3 +138,77 @@
   color: #555;
   font-size: 0.9rem;
 }
+
+/* Add this to your AdminPanel.css file */
+
+/* Home button styling */
+.home-link {
+  display: inline-block;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  text-decoration: none;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin-top: 20px;
+  text-align: center;
+  min-width: 120px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.home-link:before {
+  content: "🏠";
+  margin-right: 8px;
+  font-size: 1rem;
+}
+
+.home-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.home-link:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+}
+
+/* Add some spacing to the promote section */
+.promote-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.promote-section .home-link {
+  align-self: center;
+  margin-top: 25px;
+}
+
+/* Alternative button style (if you prefer a different look) */
+.home-link.alt-style {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #333;
+}
+
+.home-link.alt-style:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #111;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .home-link {
+    width: 100%;
+    margin-top: 15px;
+    padding: 14px 20px;
+  }
+}

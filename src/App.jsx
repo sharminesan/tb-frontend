@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+import RoleProtectedRoute from "./components/RoleProtectedRoute"; // Add this import
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
@@ -31,9 +32,9 @@ function App() {
             <Route
               path="/admin"
               element={
-                <ProtectedRoute>
+                <RoleProtectedRoute allowedRoles={["admin"]}>
                   <AdminPanel />
-                </ProtectedRoute>
+                </RoleProtectedRoute>
               }
             />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />

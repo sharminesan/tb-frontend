@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import "./AdminPanel.css";
+import { Link } from "react-router-dom";
 
 export default function AdminPanel() {
   const { currentUser, userRole } = useAuth();
@@ -110,7 +111,7 @@ export default function AdminPanel() {
 
         {userRole === "admin" && (
           <div className="promote-section">
-            <h3>Promote User</h3>
+            <h3>Edit User Role</h3>
             <form onSubmit={promoteUser}>
               <div className="form-group">
                 <label>User Email:</label>
@@ -123,7 +124,7 @@ export default function AdminPanel() {
               </div>
 
               <div className="form-group">
-                <label>Promote to:</label>
+                <label>Change to:</label>
                 <select
                   value={targetRole}
                   onChange={(e) => setTargetRole(e.target.value)}
@@ -135,9 +136,12 @@ export default function AdminPanel() {
               </div>
 
               <button type="submit" disabled={loading} className="promote-btn">
-                {loading ? "Promoting..." : "Promote User"}
+                {loading ? "Editing..." : "Edit User Role"}
               </button>
             </form>
+            <Link to="/dashboard" className="home-link">
+              Home
+            </Link>
           </div>
         )}
 

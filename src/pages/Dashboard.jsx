@@ -330,268 +330,275 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
-          <div className="control-panel">
-            <h2>Movement Controls</h2>
-            <div className="controls-grid">
-              <div></div>
-              <button
-                className="control-btn"
-                onClick={() => sendCommand("forward")}
-                title="Move Forward"
-              >
-                ↑
-              </button>
-              <div></div>
+          {userRole === "moderator" && (
+            <>
+              <div className="control-panel">
+                <h2>Movement Controls</h2>
+                <div className="controls-grid">
+                  <div></div>
+                  <button
+                    className="control-btn"
+                    onClick={() => sendCommand("forward")}
+                    title="Move Forward"
+                  >
+                    ↑
+                  </button>
+                  <div></div>
 
-              <button
-                className="control-btn"
-                onClick={() => sendCommand("left")}
-                title="Turn Left"
-              >
-                ←
-              </button>
-              <button
-                className="control-btn stop-btn"
-                onClick={() => sendCommand("stop")}
-                title="Stop"
-              >
-                ⏹
-              </button>
-              <button
-                className="control-btn"
-                onClick={() => sendCommand("right")}
-                title="Turn Right"
-              >
-                →
-              </button>
+                  <button
+                    className="control-btn"
+                    onClick={() => sendCommand("left")}
+                    title="Turn Left"
+                  >
+                    ←
+                  </button>
+                  <button
+                    className="control-btn stop-btn"
+                    onClick={() => sendCommand("stop")}
+                    title="Stop"
+                  >
+                    ⏹
+                  </button>
+                  <button
+                    className="control-btn"
+                    onClick={() => sendCommand("right")}
+                    title="Turn Right"
+                  >
+                    →
+                  </button>
 
-              <div></div>
-              <button
-                className="control-btn"
-                onClick={() => sendCommand("backward")}
-                title="Move Backward"
-              >
-                ↓
-              </button>
-              <div></div>
-            </div>
-          </div>
-          <div className="dance-patterns-panel">
-            <h2>🕺 Dance Patterns</h2>
+                  <div></div>
+                  <button
+                    className="control-btn"
+                    onClick={() => sendCommand("backward")}
+                    title="Move Backward"
+                  >
+                    ↓
+                  </button>
+                  <div></div>
+                </div>
+              </div>
+              <div className="dance-patterns-panel">
+                <h2>🕺 Dance Patterns</h2>
 
-            <div className="pattern-grid">
-              <div className="pattern-card">
-                <h3>⭕ Circle Dance</h3>
-                <div className="pattern-controls">
-                  <div className="control-row">
-                    <label>Radius:</label>
-                    <input
-                      type="range"
-                      min="0.1"
-                      max="3"
-                      step="0.1"
-                      value={patternSettings.circle.radius}
-                      onChange={(e) =>
-                        updatePatternSetting(
-                          "circle",
-                          "radius",
-                          parseFloat(e.target.value)
-                        )
-                      }
-                    />
-                    <span>{patternSettings.circle.radius}m</span>
+                <div className="pattern-grid">
+                  <div className="pattern-card">
+                    <h3>⭕ Circle Dance</h3>
+                    <div className="pattern-controls">
+                      <div className="control-row">
+                        <label>Radius:</label>
+                        <input
+                          type="range"
+                          min="0.1"
+                          max="3"
+                          step="0.1"
+                          value={patternSettings.circle.radius}
+                          onChange={(e) =>
+                            updatePatternSetting(
+                              "circle",
+                              "radius",
+                              parseFloat(e.target.value)
+                            )
+                          }
+                        />
+                        <span>{patternSettings.circle.radius}m</span>
+                      </div>
+                      <div className="control-row">
+                        <label>Duration:</label>
+                        <input
+                          type="range"
+                          min="5000"
+                          max="30000"
+                          step="1000"
+                          value={patternSettings.circle.duration}
+                          onChange={(e) =>
+                            updatePatternSetting(
+                              "circle",
+                              "duration",
+                              parseInt(e.target.value)
+                            )
+                          }
+                        />
+                        <span>{patternSettings.circle.duration / 1000}s</span>
+                      </div>
+                      <div className="control-row">
+                        <label>
+                          <input
+                            type="checkbox"
+                            checked={patternSettings.circle.clockwise}
+                            onChange={(e) =>
+                              updatePatternSetting(
+                                "circle",
+                                "clockwise",
+                                e.target.checked
+                              )
+                            }
+                          />
+                          Clockwise
+                        </label>
+                      </div>
+                    </div>
+                    <button
+                      className="pattern-btn circle-btn"
+                      onClick={startCircle}
+                    >
+                      Start Circle Dance
+                    </button>
                   </div>
-                  <div className="control-row">
-                    <label>Duration:</label>
-                    <input
-                      type="range"
-                      min="5000"
-                      max="30000"
-                      step="1000"
-                      value={patternSettings.circle.duration}
-                      onChange={(e) =>
-                        updatePatternSetting(
-                          "circle",
-                          "duration",
-                          parseInt(e.target.value)
-                        )
-                      }
-                    />
-                    <span>{patternSettings.circle.duration / 1000}s</span>
+
+                  <div className="pattern-card">
+                    <h3>🔺 Triangle Dance</h3>
+                    <div className="pattern-controls">
+                      <div className="control-row">
+                        <label>Side Length:</label>
+                        <input
+                          type="range"
+                          min="0.1"
+                          max="3"
+                          step="0.1"
+                          value={patternSettings.triangle.sideLength}
+                          onChange={(e) =>
+                            updatePatternSetting(
+                              "triangle",
+                              "sideLength",
+                              parseFloat(e.target.value)
+                            )
+                          }
+                        />
+                        <span>{patternSettings.triangle.sideLength}m</span>
+                      </div>
+                      <div className="control-row">
+                        <label>Pause:</label>
+                        <input
+                          type="range"
+                          min="100"
+                          max="2000"
+                          step="100"
+                          value={patternSettings.triangle.pauseDuration}
+                          onChange={(e) =>
+                            updatePatternSetting(
+                              "triangle",
+                              "pauseDuration",
+                              parseInt(e.target.value)
+                            )
+                          }
+                        />
+                        <span>{patternSettings.triangle.pauseDuration}ms</span>
+                      </div>
+                    </div>
+                    <button
+                      className="pattern-btn triangle-btn"
+                      onClick={startTriangle}
+                    >
+                      Start Triangle Dance
+                    </button>
                   </div>
-                  <div className="control-row">
-                    <label>
-                      <input
-                        type="checkbox"
-                        checked={patternSettings.circle.clockwise}
-                        onChange={(e) =>
-                          updatePatternSetting(
-                            "circle",
-                            "clockwise",
-                            e.target.checked
-                          )
-                        }
-                      />
-                      Clockwise
-                    </label>
+
+                  <div className="pattern-card">
+                    <h3>💖 Love Dance</h3>
+                    <div className="pattern-controls">
+                      <div className="control-row">
+                        <label>Size:</label>
+                        <input
+                          type="range"
+                          min="0.1"
+                          max="3"
+                          step="0.1"
+                          value={patternSettings.love.size}
+                          onChange={(e) =>
+                            updatePatternSetting(
+                              "love",
+                              "size",
+                              parseFloat(e.target.value)
+                            )
+                          }
+                        />
+                        <span>{patternSettings.love.size}m</span>
+                      </div>
+                      <div className="control-row">
+                        <label>Duration:</label>
+                        <input
+                          type="range"
+                          min="10000"
+                          max="60000"
+                          step="5000"
+                          value={patternSettings.love.duration}
+                          onChange={(e) =>
+                            updatePatternSetting(
+                              "love",
+                              "duration",
+                              parseInt(e.target.value)
+                            )
+                          }
+                        />
+                        <span>{patternSettings.love.duration / 1000}s</span>
+                      </div>
+                    </div>
+                    <button
+                      className="pattern-btn love-btn"
+                      onClick={startLove}
+                    >
+                      Start Love Dance
+                    </button>
+                  </div>
+
+                  <div className="pattern-card">
+                    <h3>💎 Diamond Dance</h3>
+                    <div className="pattern-controls">
+                      <div className="control-row">
+                        <label>Side Length:</label>
+                        <input
+                          type="range"
+                          min="0.1"
+                          max="3"
+                          step="0.1"
+                          value={patternSettings.diamond.sideLength}
+                          onChange={(e) =>
+                            updatePatternSetting(
+                              "diamond",
+                              "sideLength",
+                              parseFloat(e.target.value)
+                            )
+                          }
+                        />
+                        <span>{patternSettings.diamond.sideLength}m</span>
+                      </div>
+                      <div className="control-row">
+                        <label>Pause:</label>
+                        <input
+                          type="range"
+                          min="100"
+                          max="1500"
+                          step="50"
+                          value={patternSettings.diamond.pauseDuration}
+                          onChange={(e) =>
+                            updatePatternSetting(
+                              "diamond",
+                              "pauseDuration",
+                              parseInt(e.target.value)
+                            )
+                          }
+                        />
+                        <span>{patternSettings.diamond.pauseDuration}ms</span>
+                      </div>
+                    </div>
+                    <button
+                      className="pattern-btn diamond-btn"
+                      onClick={startDiamond}
+                    >
+                      Start Diamond Dance
+                    </button>
                   </div>
                 </div>
-                <button
-                  className="pattern-btn circle-btn"
-                  onClick={startCircle}
-                >
-                  Start Circle Dance
-                </button>
-              </div>
 
-              <div className="pattern-card">
-                <h3>🔺 Triangle Dance</h3>
-                <div className="pattern-controls">
-                  <div className="control-row">
-                    <label>Side Length:</label>
-                    <input
-                      type="range"
-                      min="0.1"
-                      max="3"
-                      step="0.1"
-                      value={patternSettings.triangle.sideLength}
-                      onChange={(e) =>
-                        updatePatternSetting(
-                          "triangle",
-                          "sideLength",
-                          parseFloat(e.target.value)
-                        )
-                      }
-                    />
-                    <span>{patternSettings.triangle.sideLength}m</span>
-                  </div>
-                  <div className="control-row">
-                    <label>Pause:</label>
-                    <input
-                      type="range"
-                      min="100"
-                      max="2000"
-                      step="100"
-                      value={patternSettings.triangle.pauseDuration}
-                      onChange={(e) =>
-                        updatePatternSetting(
-                          "triangle",
-                          "pauseDuration",
-                          parseInt(e.target.value)
-                        )
-                      }
-                    />
-                    <span>{patternSettings.triangle.pauseDuration}ms</span>
-                  </div>
+                <div className="pattern-actions">
+                  <button className="stop-all-btn" onClick={stopPattern}>
+                    ⏹️ Stop All Patterns
+                  </button>
                 </div>
-                <button
-                  className="pattern-btn triangle-btn"
-                  onClick={startTriangle}
-                >
-                  Start Triangle Dance
-                </button>
               </div>
-
-              <div className="pattern-card">
-                <h3>💖 Love Dance</h3>
-                <div className="pattern-controls">
-                  <div className="control-row">
-                    <label>Size:</label>
-                    <input
-                      type="range"
-                      min="0.1"
-                      max="3"
-                      step="0.1"
-                      value={patternSettings.love.size}
-                      onChange={(e) =>
-                        updatePatternSetting(
-                          "love",
-                          "size",
-                          parseFloat(e.target.value)
-                        )
-                      }
-                    />
-                    <span>{patternSettings.love.size}m</span>
-                  </div>
-                  <div className="control-row">
-                    <label>Duration:</label>
-                    <input
-                      type="range"
-                      min="10000"
-                      max="60000"
-                      step="5000"
-                      value={patternSettings.love.duration}
-                      onChange={(e) =>
-                        updatePatternSetting(
-                          "love",
-                          "duration",
-                          parseInt(e.target.value)
-                        )
-                      }
-                    />
-                    <span>{patternSettings.love.duration / 1000}s</span>
-                  </div>
-                </div>
-                <button className="pattern-btn love-btn" onClick={startLove}>
-                  Start Love Dance
-                </button>
-              </div>
-
-              <div className="pattern-card">
-                <h3>💎 Diamond Dance</h3>
-                <div className="pattern-controls">
-                  <div className="control-row">
-                    <label>Side Length:</label>
-                    <input
-                      type="range"
-                      min="0.1"
-                      max="3"
-                      step="0.1"
-                      value={patternSettings.diamond.sideLength}
-                      onChange={(e) =>
-                        updatePatternSetting(
-                          "diamond",
-                          "sideLength",
-                          parseFloat(e.target.value)
-                        )
-                      }
-                    />
-                    <span>{patternSettings.diamond.sideLength}m</span>
-                  </div>
-                  <div className="control-row">
-                    <label>Pause:</label>
-                    <input
-                      type="range"
-                      min="100"
-                      max="1500"
-                      step="50"
-                      value={patternSettings.diamond.pauseDuration}
-                      onChange={(e) =>
-                        updatePatternSetting(
-                          "diamond",
-                          "pauseDuration",
-                          parseInt(e.target.value)
-                        )
-                      }
-                    />
-                    <span>{patternSettings.diamond.pauseDuration}ms</span>
-                  </div>
-                </div>
-                <button
-                  className="pattern-btn diamond-btn"
-                  onClick={startDiamond}
-                >
-                  Start Diamond Dance
-                </button>
-              </div>
-            </div>
-
-            <div className="pattern-actions">
-              <button className="stop-all-btn" onClick={stopPattern}>
-                ⏹️ Stop All Patterns
-              </button>
-            </div>
-          </div>
+            </>
+          )}
           <div className="settings-panel">
             <h2>Robot Connection</h2>
             <div className="settings-form">
@@ -648,7 +655,7 @@ export default function Dashboard() {
           </div>{" "}
         </div>{" "}
         {/* Role-based sections */}
-        {userRole === "admin" && (
+        {/* {userRole === "admin" && (
           <div className="admin-panel">
             <h2>🔧 Admin Controls</h2>
             <div className="admin-features">
@@ -672,19 +679,19 @@ export default function Dashboard() {
               </button>
             </div>
           </div>
-        )}
-        {/* Temporary admin promotion for all users */}
-        {userRole === "user" && (
+        )} */}
+        {userRole === "admin" && (
           <div className="temp-admin-section">
             <p>
-              <strong>Debug:</strong> If you should be an admin, visit:{" "}
+              <strong>Debug:</strong> If you should be an admin, visit: <br />
+              <br />
               <a href="/admin" target="_blank" rel="noopener noreferrer">
                 Admin Panel
               </a>
             </p>
           </div>
         )}
-        {(userRole === "moderator" || userRole === "admin") && (
+        {/* {(userRole === "moderator" || userRole === "admin") && (
           <div className="moderator-panel">
             <h2>🛡️ Moderator Features</h2>
             <div className="moderator-features">
@@ -702,7 +709,7 @@ export default function Dashboard() {
               </button>
             </div>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );

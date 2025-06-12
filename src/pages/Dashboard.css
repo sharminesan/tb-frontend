@@ -706,3 +706,132 @@
     font-size: 0.8rem;
   }
 }
+
+/* Add this to your Dashboard.css file */
+
+/* Admin section styling */
+.temp-admin-section {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 215, 0, 0.1) 0%,
+    rgba(255, 165, 0, 0.1) 100%
+  );
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 15px;
+  padding: 20px;
+  margin: 20px auto; /* Center horizontally */
+  text-align: center;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.temp-admin-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.3);
+}
+
+.temp-admin-section p {
+  margin: 0;
+  color: white;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.temp-admin-section strong {
+  color: #ffd700;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Admin Panel link styling */
+.temp-admin-section a {
+  display: inline-block;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
+  color: #2a2a2a;
+  text-decoration: none;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-left: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 10px rgba(255, 215, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.temp-admin-section a:before {
+  content: "👑";
+  margin-right: 6px;
+  font-size: 1rem;
+}
+
+.temp-admin-section a:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba(255, 215, 0, 0.6);
+  background: linear-gradient(135deg, #ffb347 0%, #ffd700 100%);
+  color: #1a1a1a;
+}
+
+.temp-admin-section a:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+}
+
+/* Add subtle animation */
+.temp-admin-section a::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.temp-admin-section a:hover::after {
+  left: 100%;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .temp-admin-section {
+    margin: 15px 0;
+    padding: 15px;
+  }
+
+  .temp-admin-section p {
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .temp-admin-section a {
+    display: block;
+    margin: 10px auto 0;
+    padding: 12px 20px;
+    max-width: 200px;
+  }
+}
+
+/* Alternative compact style (if you prefer smaller) */
+.temp-admin-section.compact {
+  padding: 15px;
+  margin: 15px 0;
+}
+
+.temp-admin-section.compact p {
+  font-size: 0.9rem;
+}
+
+.temp-admin-section.compact a {
+  padding: 8px 16px;
+  font-size: 0.85rem;
+}
