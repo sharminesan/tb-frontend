@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import MFAVerification from '../components/MFAVerification'
 import './Auth.css'
 
 export default function Login() {
@@ -8,9 +9,8 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const { login, loginWithGoogle } = useAuth()
+  const { login, loginWithGoogle, mfaRequired } = useAuth()
   const navigate = useNavigate()
-
   async function handleSubmit(e) {
     e.preventDefault()
 
@@ -20,6 +20,11 @@ export default function Login() {
       await login(email, password)
       navigate('/dashboard')
     } catch (error) {
+      if (error.message === 'MFA verification required') {
+        // MFA component will be shown automatically via mfaRequired state
+        setLoading(false)
+        return
+      }
       setError('Failed to log in: ' + error.message)
     }
 
@@ -33,10 +38,38 @@ export default function Login() {
       await loginWithGoogle()
       navigate('/dashboard')
     } catch (error) {
+      if (error.message === 'MFA verification required') {
+        // MFA component will be shown automatically via mfaRequired state
+        setLoading(false)
+        return
+      }
       setError('Failed to log in with Google: ' + error.message)
     }
 
     setLoading(false)
+  }
+
+  const handleMFASuccess = () => {
+    navigate('/dashboard')
+  }
+
+  const handleMFACancel = () => {
+    setError('')
+    // Reset form state when cancelling MFA
+  }
+
+  // Show MFA verification if required
+  if (mfaRequired) {
+    return (
+      <div className="auth-container">
+        <div className="auth-card">
+          <MFAVerification 
+            onSuccess={handleMFASuccess}
+            onCancel={handleMFACancel}
+          />
+        </div>
+      </div>
+    )
   }
 
   return (

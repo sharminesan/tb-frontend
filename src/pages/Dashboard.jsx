@@ -2,16 +2,20 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
+import TenantSelector from "../components/TenantSelector";
+import MFASetup from "../components/MFASetup";
 import "./Dashboard.css";
 
 export default function Dashboard() {
-  const { currentUser, logout } = useAuth();
+  const { currentUser, logout, selectedTenant, userTenants } = useAuth();
   const navigate = useNavigate();
   const [socket, setSocket] = useState(null);
   const [connectionStatus, setConnectionStatus] = useState("Disconnected");
   const [batteryStatus, setBatteryStatus] = useState("Unknown");
   const [robotStatus, setRobotStatus] = useState(null);
   const [backendUrl, setBackendUrl] = useState("http://localhost:4000");
+  const [showMFASetup, setShowMFASetup] = useState(false);
+  const [showTenantSelector, setShowTenantSelector] = useState(false);
 
   // State for dance pattern controls
   const [patternSettings, setPatternSettings] = useState({
@@ -20,8 +24,13 @@ export default function Dashboard() {
     love: { size: 1.0, duration: 20000 },
     diamond: { sideLength: 1.0, pauseDuration: 300 },
   });
-
   useEffect(() => {
+    // Check if user needs to select a tenant
+    if (userTenants.length > 0 && !selectedTenant) {
+      setShowTenantSelector(true);
+      return;
+    }
+
     // Initialize socket connection without backend authentication
     const newSocket = io(backendUrl);
     setSocket(newSocket);
@@ -59,10 +68,8 @@ export default function Dashboard() {
     newSocket.on("emergency_stop_activated", (data) => {
       console.log("Emergency stop activated:", data);
       alert("Emergency stop activated!");
-    });
-
-    return () => newSocket.close();
-  }, [backendUrl]);
+    });    return () => newSocket.close();
+  }, [backendUrl, userTenants, selectedTenant]);
   const fetchRobotStatus = async () => {
     try {
       const response = await fetch(`${backendUrl}/api/status`);
@@ -286,28 +293,87 @@ export default function Dashboard() {
   const startDiamond = () => {
     sendPatternCommand("diamond", patternSettings.diamond);
   };
-
   const stopPattern = () => {
     sendPatternCommand("stop_pattern");
   };
 
+  // Show tenant selector if needed
+  if (showTenantSelector || (!selectedTenant && userTenants.length > 1)) {
+    return (
+      <div className="dashboard">
+        <div className="dashboard-container">
+          <header className="dashboard-header">
+            <h1>TurtleBot Controller</h1>
+            <div className="user-info">
+              <span>Welcome, {currentUser?.displayName || currentUser?.email}</span>
+              <button onClick={handleLogout} className="logout-btn">
+                Logout
+              </button>
+            </div>
+          </header>
+          <TenantSelector onTenantSelected={() => setShowTenantSelector(false)} />
+        </div>
+      </div>
+    );
+  }
+
+  // Show MFA setup if requested
+  if (showMFASetup) {
+    return (
+      <div className="dashboard">
+        <div className="dashboard-container">
+          <header className="dashboard-header">
+            <h1>Security Setup</h1>
+            <div className="user-info">
+              <button onClick={() => setShowMFASetup(false)} className="back-btn">
+                ← Back to Dashboard
+              </button>
+            </div>
+          </header>
+          <MFASetup onComplete={() => setShowMFASetup(false)} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="dashboard">
-      <div className="dashboard-container">
-        <header className="dashboard-header">
-          <h1>TurtleBot Controller</h1>
+      <div className="dashboard-container">        <header className="dashboard-header">
+          <div className="header-left">
+            <h1>TurtleBot Controller</h1>
+            {selectedTenant && (
+              <div className="tenant-info">
+                <span className="tenant-badge">🏢 {selectedTenant.name}</span>
+              </div>
+            )}
+          </div>
           <div className="user-info">
-            <span>
-              Welcome, {currentUser?.displayName || currentUser?.email}
-            </span>
+            <div className="user-actions">
+              <button 
+                onClick={() => setShowMFASetup(true)} 
+                className="security-btn"
+                title="Security Settings"
+              >
+                🔐 Security
+              </button>
+              {userTenants.length > 1 && (
+                <button 
+                  onClick={() => setShowTenantSelector(true)} 
+                  className="tenant-btn"
+                  title="Switch Organization"
+                >
+                  🏢 Switch Org
+                </button>
+              )}
+            </div>
+            <span>Welcome, {currentUser?.displayName || currentUser?.email}</span>
             <button onClick={handleLogout} className="logout-btn">
               Logout
             </button>
           </div>
         </header>
 
-        <div className="controller-wrapper">
-          <div className="status-panel">
+        <div className="controller-wrapper">          <div className="status-panel">
             <h2>Status</h2>
             <div className="status-list">
               <div className="status-item">
@@ -322,6 +388,12 @@ export default function Dashboard() {
                 <div className="status-title">Battery</div>
                 <div className="status-value">{batteryStatus}</div>
               </div>
+              {selectedTenant && (
+                <div className="status-item">
+                  <div className="status-title">Organization</div>
+                  <div className="status-value">{selectedTenant.name}</div>
+                </div>
+              )}
               <div className="status-item">
                 <div className="status-title">User</div>
                 <div className="status-value">

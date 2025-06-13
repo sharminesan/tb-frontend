@@ -1,0 +1,264 @@
+/* filepath: c:\Users\chinh\Desktop\turtlebot-frontend\src\components\TenantSelector.css */
+
+.tenant-selector {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.tenant-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.tenant-header h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.tenant-header p {
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+.tenant-list {
+  margin-bottom: 2rem;
+}
+
+.tenant-card {
+  display: flex;
+  align-items: center;
+  padding: 1.5rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #ffffff;
+}
+
+.tenant-card:hover {
+  border-color: #667eea;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(102, 126, 234, 0.2);
+}
+
+.tenant-icon {
+  font-size: 2rem;
+  margin-right: 1rem;
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f4f6;
+  border-radius: 8px;
+}
+
+.tenant-info {
+  flex: 1;
+}
+
+.tenant-info h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.25rem;
+}
+
+.tenant-info p {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.tenant-arrow {
+  font-size: 1.2rem;
+  color: #9ca3af;
+  transition: transform 0.3s ease;
+}
+
+.tenant-card:hover .tenant-arrow {
+  transform: translateX(4px);
+  color: #667eea;
+}
+
+.tenant-actions {
+  text-align: center;
+}
+
+.create-tenant-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.create-tenant-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(102, 126, 234, 0.4);
+}
+
+.create-tenant-form {
+  background: #f9fafb;
+  padding: 2rem;
+  border-radius: 12px;
+  border: 2px solid #e5e7eb;
+}
+
+.create-tenant-form h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.create-tenant-form .form-group {
+  margin-bottom: 1rem;
+}
+
+.create-tenant-form input {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.create-tenant-form input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.cancel-btn {
+  flex: 1;
+  padding: 1rem;
+  background: #ffffff;
+  color: #6b7280;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-btn:hover:not(:disabled) {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.form-actions .submit-btn {
+  flex: 1;
+  padding: 1rem;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.form-actions .submit-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 15px -3px rgba(102, 126, 234, 0.3);
+}
+
+.form-actions .submit-btn:disabled,
+.cancel-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.tenant-selected {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f0f9ff;
+  border: 2px solid #0ea5e9;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.tenant-selected .tenant-info {
+  display: flex;
+  align-items: center;
+}
+
+.tenant-selected .tenant-icon {
+  font-size: 1.5rem;
+  margin-right: 1rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: #0ea5e9;
+  color: white;
+  border-radius: 8px;
+}
+
+.tenant-details h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 0.25rem;
+}
+
+.tenant-details p {
+  color: #0ea5e9;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.change-tenant-btn {
+  background: #ffffff;
+  color: #0ea5e9;
+  border: 2px solid #0ea5e9;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.change-tenant-btn:hover {
+  background: #0ea5e9;
+  color: white;
+}
+
+.error-message {
+  color: #ef4444;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.error-message::before {
+  content: '⚠';
+  font-size: 1.1rem;
+}

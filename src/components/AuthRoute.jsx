@@ -2,7 +2,7 @@ import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import './ProtectedRoute.css'
 
-export default function ProtectedRoute({ children }) {
+export default function AuthRoute({ children }) {
   const { currentUser, loading } = useAuth()
   const location = useLocation()
   
@@ -16,12 +16,12 @@ export default function ProtectedRoute({ children }) {
     )
   }
   
-  // If not authenticated, redirect to login with the current location
-  // This prevents users from accessing protected routes via URL manipulation
-  if (!currentUser) {
-    return <Navigate to="/login" replace state={{ from: location }} />
+  // If user is authenticated, redirect to dashboard
+  // Use replace to prevent going back to auth pages
+  if (currentUser) {
+    return <Navigate to="/dashboard" replace state={{ from: location }} />
   }
   
-  // If authenticated, render the protected content
+  // If not authenticated, show the auth page
   return children
 }
