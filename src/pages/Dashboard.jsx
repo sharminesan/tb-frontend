@@ -286,7 +286,6 @@ export default function Dashboard() {
   const startDiamond = () => {
     sendPatternCommand("diamond", patternSettings.diamond);
   };
-
   const stopPattern = () => {
     sendPatternCommand("stop_pattern");
   };

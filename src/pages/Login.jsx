@@ -8,30 +8,78 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login, loginWithGoogle } = useAuth();
+  const { login, loginWithGoogle, resetEmailVerification } = useAuth();
   const navigate = useNavigate();
-
   async function handleSubmit(e) {
     e.preventDefault();
 
     try {
       setError("");
       setLoading(true);
-      await login(email, password);
-      navigate("/dashboard");
+
+      // Login user first
+      const userCredential = await login(email, password);
+      const user = userCredential.user;
+
+      // Send OTP after successful login
+      const token = await user.getIdToken();
+
+      const otpResponse = await fetch(
+        "http://localhost:4000/api/otp/send-otp",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ email }),
+        }
+      );
+      if (otpResponse.ok) {
+        // Reset verification status and redirect to OTP verification
+        resetEmailVerification();
+        navigate("/verify-otp", { state: { email } });
+      } else {
+        const result = await otpResponse.json();
+        throw new Error(result.error || "Failed to send OTP");
+      }
     } catch (error) {
       setError("Failed to log in: " + error.message);
     }
 
     setLoading(false);
   }
-
   async function handleGoogleSignIn() {
     try {
       setError("");
       setLoading(true);
-      await loginWithGoogle();
-      navigate("/dashboard");
+
+      // Login with Google
+      const result = await loginWithGoogle();
+      const user = result.user;
+
+      // Send OTP after successful Google login
+      const token = await user.getIdToken();
+
+      const otpResponse = await fetch(
+        "http://localhost:4000/api/otp/send-otp",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ email: user.email }),
+        }
+      );
+      if (otpResponse.ok) {
+        // Reset verification status and redirect to OTP verification
+        resetEmailVerification();
+        navigate("/verify-otp", { state: { email: user.email } });
+      } else {
+        const result = await otpResponse.json();
+        throw new Error(result.error || "Failed to send OTP");
+      }
     } catch (error) {
       setError("Failed to log in with Google: " + error.message);
     }

@@ -36,6 +36,15 @@ export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [emailVerified, setEmailVerifiedState] = useState(false); // Add OTP verification state
+
+  // Wrapper function to log when emailVerified changes
+  const setEmailVerified = (value) => {
+    console.log(
+      `📧 Email verification status changing: ${emailVerified} → ${value}`
+    );
+    setEmailVerifiedState(value);
+  };
 
   // Backend URL for role management
   const [backendUrl] = useState("http://localhost:4000");
@@ -109,7 +118,28 @@ export function AuthProvider({ children }) {
 
     return result;
   };
-  const logout = () => {
+  const logout = async () => {
+    try {
+      // Call backend logout endpoint first
+      if (currentUser) {
+        const token = await currentUser.getIdToken();
+        await fetch(`${backendUrl}/api/logout`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Error calling backend logout:", error);
+      // Continue with Firebase logout even if backend fails
+    }
+
+    // Reset email verification status
+    setEmailVerified(false);
+
+    // Sign out from Firebase
     return signOut(auth);
   };
 
@@ -145,11 +175,58 @@ export function AuthProvider({ children }) {
       }
     }
   };
+  // Check email verification status
+  const checkEmailVerification = async (user) => {
+    if (!user) {
+      console.log("🔒 No user provided for verification check");
+      setEmailVerified(false);
+      return false;
+    }
+
+    try {
+      console.log("🔍 Checking email verification for:", user.email);
+      const token = await user.getIdToken();
+      const response = await fetch(
+        `${backendUrl}/api/otp/verification-status`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log("📧 Verification status from backend:", result);
+        setEmailVerified(result.emailVerified);
+        return result.emailVerified;
+      } else {
+        console.log("❌ Backend verification check failed:", response.status);
+        setEmailVerified(false);
+        return false;
+      }
+    } catch (error) {
+      console.error("❌ Error checking email verification:", error);
+      setEmailVerified(false);
+      return false;
+    }
+  };
+
+  // Function to reset email verification status (useful for testing and OTP flow)
+  const resetEmailVerification = () => {
+    console.log("🔄 Resetting email verification status");
+    setEmailVerified(false);
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
-
       if (user) {
+        console.log("👤 User logged in:", user.email);
+
+        // Reset email verification status for new login
+        setEmailVerified(false);
+
         // Get user role from custom claims
         try {
           const tokenResult = await user.getIdTokenResult();
@@ -161,8 +238,14 @@ export function AuthProvider({ children }) {
           console.error("Error getting user role:", error);
           setUserRole("user");
         }
+
+        // Check email verification status
+        // Don't auto-check verification - let OTPProtectedRoute handle it
+        // checkEmailVerification(user);
       } else {
+        console.log("👤 User logged out");
         setUserRole(null);
+        setEmailVerified(false); // Reset verification status on logout
       }
 
       setLoading(false);
@@ -170,10 +253,10 @@ export function AuthProvider({ children }) {
 
     return unsubscribe;
   }, []);
-
   const value = {
     currentUser,
     userRole,
+    emailVerified,
     signup,
     login,
     loginWithGoogle,
@@ -181,6 +264,8 @@ export function AuthProvider({ children }) {
     updateUserProfile,
     getUserRole,
     refreshUserRole,
+    checkEmailVerification,
+    resetEmailVerification,
   };
 
   return (
