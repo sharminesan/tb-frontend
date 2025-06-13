@@ -15,6 +15,10 @@ export default function OTPVerification() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Get backend URL from environment variable
+  const backendUrl =
+    import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
+
   const email = location.state?.email || currentUser?.email;
 
   useEffect(() => {
@@ -71,11 +75,10 @@ export default function OTPVerification() {
 
     setLoading(true);
     setError("");
-
     try {
       const token = await currentUser.getIdToken();
 
-      const response = await fetch("http://localhost:4000/api/otp/verify-otp", {
+      const response = await fetch(`${backendUrl}/api/otp/verify-otp`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -111,11 +114,10 @@ export default function OTPVerification() {
   const handleResendOtp = async () => {
     setResendLoading(true);
     setError("");
-
     try {
       const token = await currentUser.getIdToken();
 
-      const response = await fetch("http://localhost:4000/api/otp/send-otp", {
+      const response = await fetch(`${backendUrl}/api/otp/resend-otp`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

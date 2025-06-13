@@ -11,7 +11,9 @@ export default function Dashboard() {
   const [connectionStatus, setConnectionStatus] = useState("Disconnected");
   const [batteryStatus, setBatteryStatus] = useState("Unknown");
   const [robotStatus, setRobotStatus] = useState(null);
-  const [backendUrl, setBackendUrl] = useState("http://localhost:4000");
+  const [backendUrl, setBackendUrl] = useState(
+    import.meta.env.VITE_BACKEND_URL || "http://localhost:4000"
+  );
 
   // State for dance pattern controls
   const [patternSettings, setPatternSettings] = useState({

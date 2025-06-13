@@ -45,9 +45,10 @@ export function AuthProvider({ children }) {
     );
     setEmailVerifiedState(value);
   };
-
   // Backend URL for role management
-  const [backendUrl] = useState("http://localhost:4000");
+  const [backendUrl] = useState(
+    import.meta.env.VITE_BACKEND_URL || "http://localhost:4000"
+  );
   // Auth functions
   const signup = async (email, password, role = "user") => {
     console.log("🔐 Attempting to create user with role:", role);

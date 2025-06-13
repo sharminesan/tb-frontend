@@ -10,6 +10,10 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const { login, loginWithGoogle, resetEmailVerification } = useAuth();
   const navigate = useNavigate();
+
+  // Get backend URL from environment variable
+  const backendUrl =
+    import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
   async function handleSubmit(e) {
     e.preventDefault();
 
@@ -19,22 +23,30 @@ export default function Login() {
 
       // Login user first
       const userCredential = await login(email, password);
-      const user = userCredential.user;
+      const user = userCredential.user; // Establish backend session
+      const sessionResponse = await fetch(`${backendUrl}/api/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username: email, password }),
+      });
 
-      // Send OTP after successful login
+      if (!sessionResponse.ok) {
+        console.warn(
+          "Backend session creation failed, continuing with OTP flow"
+        );
+      } // Send OTP after successful login
       const token = await user.getIdToken();
 
-      const otpResponse = await fetch(
-        "http://localhost:4000/api/otp/send-otp",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ email }),
-        }
-      );
+      const otpResponse = await fetch(`${backendUrl}/api/otp/send-otp`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ email }),
+      });
       if (otpResponse.ok) {
         // Reset verification status and redirect to OTP verification
         resetEmailVerification();
@@ -58,20 +70,41 @@ export default function Login() {
       const result = await loginWithGoogle();
       const user = result.user;
 
-      // Send OTP after successful Google login
-      const token = await user.getIdToken();
-
-      const otpResponse = await fetch(
-        "http://localhost:4000/api/otp/send-otp",
-        {
+      // For Google login, try to establish backend session with email as username
+      // Note: This might fail if user doesn't exist in backend, but we continue anyway
+      try {
+        const sessionResponse = await fetch(`${backendUrl}/api/login`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ email: user.email }),
+          body: JSON.stringify({
+            username: user.email,
+            password: "google_auth",
+          }),
+        });
+
+        if (!sessionResponse.ok) {
+          console.warn(
+            "Backend session creation failed for Google login, continuing with OTP flow"
+          );
         }
-      );
+      } catch (sessionError) {
+        console.warn(
+          "Failed to create backend session for Google login:",
+          sessionError
+        );
+      } // Send OTP after successful Google login
+      const token = await user.getIdToken();
+
+      const otpResponse = await fetch(`${backendUrl}/api/otp/send-otp`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ email: user.email }),
+      });
       if (otpResponse.ok) {
         // Reset verification status and redirect to OTP verification
         resetEmailVerification();

@@ -10,6 +10,10 @@ export default function AdminPanel() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Get backend URL from environment variable
+  const backendUrl =
+    import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
+
   const promoteUser = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -18,21 +22,17 @@ export default function AdminPanel() {
     try {
       // Get user token for authentication
       const token = await currentUser.getIdToken();
-
-      const response = await fetch(
-        "http://localhost:4000/api/auth/promote-user",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            email,
-            role: targetRole,
-          }),
-        }
-      );
+      const response = await fetch(`${backendUrl}/api/auth/promote-user`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          email,
+          role: targetRole,
+        }),
+      });
 
       const result = await response.json();
 
@@ -53,20 +53,17 @@ export default function AdminPanel() {
   const makeYourselfAdmin = async () => {
     setLoading(true);
     try {
-      const response = await fetch(
-        "http://localhost:4000/api/auth/assign-role",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            uid: currentUser.uid,
-            role: "admin",
-            override: true, // Special flag for first admin
-          }),
-        }
-      );
+      const response = await fetch(`${backendUrl}/api/auth/assign-role`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          uid: currentUser.uid,
+          role: "admin",
+          override: true, // Special flag for first admin
+        }),
+      });
 
       const result = await response.json();
 
