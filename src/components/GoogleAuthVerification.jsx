@@ -48,9 +48,7 @@ export default function GoogleAuthVerification({ onSuccess, onCancel, email }) {
     if (e.key === "Enter") {
       handleVerification();
     }
-  };
-
-  return (
+  };  return (
     <div className="google-auth-verification">
       <div className="verification-header">
         <h2>🔐 Two-Factor Authentication</h2>
@@ -146,8 +144,7 @@ export default function GoogleAuthVerification({ onSuccess, onCancel, email }) {
         <ul>
           <li>Make sure your device's time is correct</li>
           <li>Open Google Authenticator app and find "TurtleBot"</li>
-          <li>Enter the current 6-digit code</li>
-          <li>If you lost your device, use one of your backup codes</li>
+          <li>Enter the current 6-digit code</li>          <li>If you lost your device, use one of your backup codes</li>
         </ul>
       </div>
     </div>

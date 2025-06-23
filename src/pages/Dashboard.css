@@ -627,20 +627,23 @@
 
 /* Security Panel Styles */
 .security-panel {
-  background: #f8f9fa;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
   padding: 25px;
   margin: 20px 0;
-  border: 1px solid #e9ecef;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .security-panel h2 {
-  color: #333;
+  color: white;
   margin-bottom: 20px;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
+  text-align: center;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .security-panel .google-auth-manager {

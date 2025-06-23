@@ -658,7 +658,6 @@ export default function Dashboard() {
         </div>{" "}
         {/* Security Settings Section */}
         <div className="security-panel">
-          <h2>🔐 Security Settings</h2>
           <GoogleAuthManager />
         </div>
         {/* Role-based sections */}

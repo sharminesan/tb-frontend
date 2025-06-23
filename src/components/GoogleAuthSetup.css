@@ -1,11 +1,17 @@
-/* Google Authenticator Setup Styles */
+/* Google Authenticator Setup Styles - Dashboard Theme */
 .google-auth-setup {
   max-width: 500px;
   margin: 0 auto;
-  padding: 20px;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.95),
+    rgba(255, 255, 255, 0.85)
+  );
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 .google-auth-setup.loading {
@@ -21,11 +27,14 @@
 .setup-header h2 {
   color: #333;
   margin-bottom: 10px;
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .setup-header p {
-  color: #666;
+  color: #555;
   margin: 0;
+  font-size: 0.95rem;
 }
 
 .step-content {
@@ -39,15 +48,16 @@
 }
 
 .step-number {
-  background: #4285f4;
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
   color: white;
-  width: 30px;
-  height: 30px;
+  width: 35px;
+  height: 35px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
+  box-shadow: 0 3px 10px rgba(79, 172, 254, 0.3);
   margin-right: 15px;
 }
 
@@ -98,29 +108,41 @@
 
 .copy-btn,
 .download-btn {
-  background: #f0f0f0;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  padding: 5px 10px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 14px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
 }
 
 .copy-btn:hover,
 .download-btn:hover {
-  background: #e0e0e0;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
 }
 
 .instructions {
-  background: #f8f9fa;
+  background: linear-gradient(
+    135deg,
+    rgba(248, 249, 250, 0.9),
+    rgba(248, 249, 250, 0.7)
+  );
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 15px;
   margin: 20px 0;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
 }
 
 .instructions h4 {
   margin-top: 0;
   color: #333;
+  font-weight: 600;
 }
 
 .instructions ol {
@@ -131,6 +153,7 @@
 .instructions li {
   margin: 8px 0;
   line-height: 1.5;
+  color: #555;
 }
 
 .verification-input {
@@ -160,49 +183,64 @@
   gap: 15px;
   justify-content: center;
   margin-top: 30px;
+  flex-wrap: wrap;
 }
 
 .primary-btn {
-  background: #4285f4;
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
   color: white;
   border: none;
   padding: 12px 24px;
-  border-radius: 6px;
+  border-radius: 25px;
   font-size: 16px;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
 }
 
 .primary-btn:hover:not(:disabled) {
-  background: #3367d6;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
 }
 
 .primary-btn:disabled {
-  background: #ccc;
+  background: linear-gradient(135deg, #ccc, #bbb);
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .secondary-btn {
-  background: white;
+  background: rgba(255, 255, 255, 0.1);
   color: #4285f4;
   border: 2px solid #4285f4;
   padding: 10px 22px;
-  border-radius: 6px;
+  border-radius: 25px;
   font-size: 16px;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
 }
 
 .secondary-btn:hover {
-  background: #f8f9fa;
+  background: rgba(66, 133, 244, 0.1);
+  transform: translateY(-1px);
 }
 
 .success-message {
   text-align: center;
   margin: 20px 0;
   padding: 20px;
-  background: #e8f5e8;
-  border-radius: 8px;
+  background: linear-gradient(
+    135deg,
+    rgba(232, 245, 232, 0.9),
+    rgba(200, 230, 201, 0.8)
+  );
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(76, 175, 80, 0.3);
   color: #2e7d32;
 }
 

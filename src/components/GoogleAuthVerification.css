@@ -1,11 +1,26 @@
-/* Google Authenticator Verification Styles */
+/* Google Authenticator Verification Styles - Dashboard Theme */
 .google-auth-verification {
   max-width: 450px;
+  width: 100%;
   margin: 0 auto;
   padding: 30px;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  animation: slideUp 0.6s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .verification-header {
@@ -14,22 +29,28 @@
 }
 
 .verification-header h2 {
-  color: #333;
+  color: white;
   margin-bottom: 10px;
+  font-weight: 600;
+  font-size: 1.8rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .verification-header p {
-  color: #666;
+  color: rgba(255, 255, 255, 0.8);
   margin: 5px 0;
+  font-size: 0.95rem;
 }
 
 .user-email {
   font-size: 14px;
-  color: #555;
-  background: #f8f9fa;
-  padding: 8px 12px;
-  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 10px 15px;
+  border-radius: 15px;
   margin-top: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
 }
 
 .verification-content {
@@ -43,8 +64,9 @@
 .input-section label {
   display: block;
   margin-bottom: 10px;
-  font-weight: 500;
-  color: #333;
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .verification-input {
@@ -53,17 +75,24 @@
   font-family: "Courier New", monospace;
   text-align: center;
   padding: 15px;
-  border: 2px solid #ddd;
-  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
   letter-spacing: 8px;
-  background: #fafafa;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  backdrop-filter: blur(10px);
+  box-sizing: border-box;
 }
 
 .verification-input:focus {
   outline: none;
-  border-color: #4285f4;
-  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
-  background: white;
+  border-color: #4facfe;
+  box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.2);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.verification-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .backup-input {
@@ -72,16 +101,23 @@
   font-family: "Courier New", monospace;
   text-align: center;
   padding: 12px;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  background: #fafafa;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  backdrop-filter: blur(10px);
+  box-sizing: border-box;
 }
 
 .backup-input:focus {
   outline: none;
-  border-color: #4285f4;
-  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
-  background: white;
+  border-color: #4facfe;
+  box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.2);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.backup-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .backup-option {
@@ -92,15 +128,18 @@
 .link-btn {
   background: none;
   border: none;
-  color: #4285f4;
+  color: #4facfe;
   text-decoration: underline;
   cursor: pointer;
   font-size: 14px;
-  padding: 5px;
+  padding: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
 
 .link-btn:hover {
-  color: #3367d6;
+  color: #00f2fe;
+  transform: translateY(-1px);
 }
 
 .verification-actions {
@@ -108,56 +147,69 @@
   gap: 15px;
   justify-content: center;
   margin: 30px 0 20px;
+  flex-wrap: wrap;
 }
 
 .verify-btn {
-  background: #4285f4;
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
   color: white;
   border: none;
   padding: 12px 30px;
-  border-radius: 6px;
+  border-radius: 25px;
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   min-width: 120px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
 }
 
 .verify-btn:hover:not(:disabled) {
-  background: #3367d6;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
 }
 
 .verify-btn:disabled {
-  background: #ccc;
+  background: linear-gradient(135deg, #ccc, #bbb);
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .cancel-btn {
-  background: white;
-  color: #666;
-  border: 2px solid #ddd;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   padding: 10px 28px;
-  border-radius: 6px;
+  border-radius: 25px;
   font-size: 16px;
   cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
 }
 
 .cancel-btn:hover {
-  background: #f8f9fa;
-  border-color: #bbb;
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: white;
+  transform: translateY(-2px);
 }
 
 .help-section {
   margin-top: 30px;
   padding: 20px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  border-left: 4px solid #4285f4;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
 }
 
 .help-section h4 {
   margin-top: 0;
-  color: #333;
+  color: white;
   font-size: 16px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .help-section ul {
@@ -167,18 +219,20 @@
 
 .help-section li {
   margin: 8px 0;
-  color: #555;
+  color: rgba(255, 255, 255, 0.8);
   line-height: 1.4;
 }
 
 .error-message {
-  background: #f8d7da;
-  color: #721c24;
-  padding: 12px;
-  border-radius: 6px;
+  background: rgba(255, 107, 107, 0.1);
+  color: #ff6b6b;
+  padding: 12px 15px;
+  border-radius: 12px;
   margin: 15px 0;
-  border-left: 4px solid #dc3545;
+  border: 1px solid rgba(255, 107, 107, 0.3);
   text-align: center;
+  backdrop-filter: blur(10px);
+  font-weight: 500;
 }
 
 /* Animation for smooth transitions */
@@ -199,10 +253,15 @@
 }
 
 /* Responsive design */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .google-auth-verification {
     margin: 10px;
     padding: 20px;
+    max-width: 100%;
+  }
+
+  .verification-header h2 {
+    font-size: 1.5rem;
   }
 
   .verification-actions {
@@ -212,5 +271,20 @@
   .verification-input {
     font-size: 20px;
     letter-spacing: 6px;
+    padding: 12px;
+  }
+
+  .verify-btn,
+  .cancel-btn {
+    width: 100%;
+    margin: 5px 0;
+  }
+
+  .help-section {
+    padding: 15px;
+  }
+
+  .help-section ul {
+    padding-left: 15px;
   }
 }
