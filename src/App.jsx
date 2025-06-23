@@ -7,6 +7,7 @@ import {
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import OTPProtectedRoute from "./components/OTPProtectedRoute";
+import TwoFactorProtectedRoute from "./components/TwoFactorProtectedRoute";
 import RoleProtectedRoute from "./components/RoleProtectedRoute";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -36,7 +37,9 @@ function App() {
               path="/dashboard"
               element={
                 <OTPProtectedRoute>
-                  <Dashboard />
+                  <TwoFactorProtectedRoute>
+                    <Dashboard />
+                  </TwoFactorProtectedRoute>
                 </OTPProtectedRoute>
               }
             />
@@ -44,9 +47,11 @@ function App() {
               path="/admin"
               element={
                 <OTPProtectedRoute>
-                  <RoleProtectedRoute allowedRoles={["admin"]}>
-                    <AdminPanel />
-                  </RoleProtectedRoute>
+                  <TwoFactorProtectedRoute>
+                    <RoleProtectedRoute allowedRoles={["admin"]}>
+                      <AdminPanel />
+                    </RoleProtectedRoute>
+                  </TwoFactorProtectedRoute>
                 </OTPProtectedRoute>
               }
             />{" "}

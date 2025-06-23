@@ -1,0 +1,216 @@
+/* Google Authenticator Verification Styles */
+.google-auth-verification {
+  max-width: 450px;
+  margin: 0 auto;
+  padding: 30px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.verification-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.verification-header h2 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.verification-header p {
+  color: #666;
+  margin: 5px 0;
+}
+
+.user-email {
+  font-size: 14px;
+  color: #555;
+  background: #f8f9fa;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-top: 15px;
+}
+
+.verification-content {
+  margin: 20px 0;
+}
+
+.input-section {
+  margin-bottom: 20px;
+}
+
+.input-section label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 500;
+  color: #333;
+}
+
+.verification-input {
+  width: 100%;
+  font-size: 24px;
+  font-family: "Courier New", monospace;
+  text-align: center;
+  padding: 15px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  letter-spacing: 8px;
+  background: #fafafa;
+}
+
+.verification-input:focus {
+  outline: none;
+  border-color: #4285f4;
+  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+  background: white;
+}
+
+.backup-input {
+  width: 100%;
+  font-size: 16px;
+  font-family: "Courier New", monospace;
+  text-align: center;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.backup-input:focus {
+  outline: none;
+  border-color: #4285f4;
+  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+  background: white;
+}
+
+.backup-option {
+  text-align: center;
+  margin: 15px 0;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: #4285f4;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 5px;
+}
+
+.link-btn:hover {
+  color: #3367d6;
+}
+
+.verification-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin: 30px 0 20px;
+}
+
+.verify-btn {
+  background: #4285f4;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  min-width: 120px;
+}
+
+.verify-btn:hover:not(:disabled) {
+  background: #3367d6;
+}
+
+.verify-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.cancel-btn {
+  background: white;
+  color: #666;
+  border: 2px solid #ddd;
+  padding: 10px 28px;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.cancel-btn:hover {
+  background: #f8f9fa;
+  border-color: #bbb;
+}
+
+.help-section {
+  margin-top: 30px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #4285f4;
+}
+
+.help-section h4 {
+  margin-top: 0;
+  color: #333;
+  font-size: 16px;
+}
+
+.help-section ul {
+  margin: 10px 0 0;
+  padding-left: 20px;
+}
+
+.help-section li {
+  margin: 8px 0;
+  color: #555;
+  line-height: 1.4;
+}
+
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 12px;
+  border-radius: 6px;
+  margin: 15px 0;
+  border-left: 4px solid #dc3545;
+  text-align: center;
+}
+
+/* Animation for smooth transitions */
+.totp-verification,
+.backup-verification {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .google-auth-verification {
+    margin: 10px;
+    padding: 20px;
+  }
+
+  .verification-actions {
+    flex-direction: column;
+  }
+
+  .verification-input {
+    font-size: 20px;
+    letter-spacing: 6px;
+  }
+}

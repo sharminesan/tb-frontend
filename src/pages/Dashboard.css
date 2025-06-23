@@ -625,6 +625,30 @@
   background: linear-gradient(135deg, #00fa54, #228b22);
 }
 
+/* Security Panel Styles */
+.security-panel {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 25px;
+  margin: 20px 0;
+  border: 1px solid #e9ecef;
+}
+
+.security-panel h2 {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.security-panel .google-auth-manager {
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .controller-wrapper {

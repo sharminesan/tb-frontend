@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
+import GoogleAuthManager from "../components/GoogleAuthManager";
 import "./Dashboard.css";
 
 export default function Dashboard() {
@@ -655,6 +656,11 @@ export default function Dashboard() {
             </div>
           </div>{" "}
         </div>{" "}
+        {/* Security Settings Section */}
+        <div className="security-panel">
+          <h2>🔐 Security Settings</h2>
+          <GoogleAuthManager />
+        </div>
         {/* Role-based sections */}
         {/* {userRole === "admin" && (
           <div className="admin-panel">
