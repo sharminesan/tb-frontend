@@ -3,6 +3,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 import GoogleAuthManager from "../components/GoogleAuthManager";
+import RobotVideoFeed from "../components/RobotVideoFeed";
 import "./Dashboard.css";
 
 export default function Dashboard() {
@@ -331,6 +332,13 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
+          </div>{" "}
+          {/* Local Webcam Feed */}
+          <div className="video-feed-panel">
+            <RobotVideoFeed
+              backendUrl={backendUrl}
+              isConnected={connectionStatus === "Connected"}
+            />
           </div>
           {userRole === "moderator" && (
             <>

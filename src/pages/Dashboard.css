@@ -85,9 +85,15 @@
 .controller-wrapper {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto auto 1fr;
   gap: 20px;
   margin-top: 20px;
+}
+
+/* Video Feed Panel */
+.video-feed-panel {
+  grid-column: 2; /* Span across both columns */
+  background: transparent; /* Let the component handle its own background */
 }
 
 /* Status Panel */
