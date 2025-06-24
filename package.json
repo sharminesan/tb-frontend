@@ -1,9 +1,9 @@
 {
   "name": "turtlebot-react",
   "version": "1.0.0",
-  "type": "module",
-  "scripts": {
+  "type": "module",  "scripts": {
     "dev": "vite",
+    "dev:network": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview"
   },
