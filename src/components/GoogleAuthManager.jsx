@@ -15,6 +15,9 @@ export default function GoogleAuthManager() {
   const [error, setError] = useState("");
   const [showSetup, setShowSetup] = useState(false);
   const [showDisableConfirm, setShowDisableConfirm] = useState(false);
+  const [disableToken, setDisableToken] = useState("");
+  const [disableBackupCode, setDisableBackupCode] = useState("");
+  const [useBackupCodeForDisable, setUseBackupCodeForDisable] = useState(false);
   const [showBackupCodes, setShowBackupCodes] = useState(false);
   const [backupCodes, setBackupCodes] = useState([]);
   const [actionLoading, setActionLoading] = useState(false);
@@ -49,15 +52,29 @@ export default function GoogleAuthManager() {
     checkTwoFactorStatus();
   };
 
-  const handleDisable2FA = async (verificationResult) => {
+  const handleDisable2FA = async () => {
+    const token = useBackupCodeForDisable
+      ? disableBackupCode.trim()
+      : disableToken;
+
+    if (!token || (!useBackupCodeForDisable && token.length !== 6)) {
+      setError(
+        useBackupCodeForDisable
+          ? "Please enter a backup code"
+          : "Please enter a valid 6-digit code"
+      );
+      return;
+    }
+
     try {
       setActionLoading(true);
       setError("");
 
-      await googleAuthService.disable2FA(
-        verificationResult.token || verificationResult.backupCode
-      );
+      await googleAuthService.disable2FA(token);
       setShowDisableConfirm(false);
+      setDisableToken("");
+      setDisableBackupCode("");
+      setUseBackupCodeForDisable(false);
       checkTwoFactorStatus();
     } catch (error) {
       setError(error.message);
@@ -137,10 +154,83 @@ export default function GoogleAuthManager() {
           <h3>⚠️ Disable Two-Factor Authentication</h3>
           <p>Enter your authenticator code to confirm disabling 2FA:</p>
 
-          <GoogleAuthVerification
-            onSuccess={handleDisable2FA}
-            onCancel={() => setShowDisableConfirm(false)}
-          />
+          {error && <div className="error-message">⚠️ {error}</div>}
+
+          <div className="verification-form">
+            {!useBackupCodeForDisable ? (
+              <div className="input-group">
+                <label>6-digit authenticator code:</label>
+                <input
+                  type="text"
+                  value={disableToken}
+                  onChange={(e) =>
+                    setDisableToken(
+                      e.target.value.replace(/\D/g, "").slice(0, 6)
+                    )
+                  }
+                  placeholder="000000"
+                  maxLength="6"
+                  disabled={actionLoading}
+                />
+              </div>
+            ) : (
+              <div className="input-group">
+                <label>Backup code:</label>
+                <input
+                  type="text"
+                  value={disableBackupCode}
+                  onChange={(e) => setDisableBackupCode(e.target.value)}
+                  placeholder="Enter backup code"
+                  disabled={actionLoading}
+                />
+              </div>
+            )}
+
+            <div className="verification-actions">
+              <button
+                onClick={handleDisable2FA}
+                disabled={
+                  actionLoading ||
+                  (!useBackupCodeForDisable && disableToken.length !== 6) ||
+                  (useBackupCodeForDisable && !disableBackupCode.trim())
+                }
+                className="verify-btn danger"
+              >
+                {actionLoading ? "Disabling..." : "Disable 2FA"}
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowDisableConfirm(false);
+                  setDisableToken("");
+                  setDisableBackupCode("");
+                  setUseBackupCodeForDisable(false);
+                  setError("");
+                }}
+                disabled={actionLoading}
+                className="cancel-btn"
+              >
+                Cancel
+              </button>
+            </div>
+
+            <div className="backup-toggle">
+              <button
+                onClick={() => {
+                  setUseBackupCodeForDisable(!useBackupCodeForDisable);
+                  setDisableToken("");
+                  setDisableBackupCode("");
+                  setError("");
+                }}
+                disabled={actionLoading}
+                className="toggle-backup-btn"
+              >
+                {useBackupCodeForDisable
+                  ? "Use authenticator code instead"
+                  : "Use backup code instead"}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );

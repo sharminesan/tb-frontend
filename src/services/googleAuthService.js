@@ -98,6 +98,12 @@ class GoogleAuthService {
 
   // Disable 2FA
   async disable2FA(token) {
+    if (!token) {
+      throw new Error(
+        "TOTP token is required to disable two-factor authentication"
+      );
+    }
+
     const headers = await this.getAuthHeaders();
 
     const response = await fetch(`${this.baseUrl}/disable`, {
@@ -108,7 +114,11 @@ class GoogleAuthService {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || "Failed to disable 2FA");
+      throw new Error(
+        error.error ||
+          error.details ||
+          "Failed to disable two-factor authentication"
+      );
     }
 
     return response.json();
