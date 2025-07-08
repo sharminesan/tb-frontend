@@ -151,40 +151,63 @@ export default function GoogleAuthManager() {
     return (
       <div className="google-auth-manager">
         <div className="confirm-disable">
-          <h3>⚠️ Disable Two-Factor Authentication</h3>
-          <p>Enter your authenticator code to confirm disabling 2FA:</p>
+          <div className="verification-header">
+            <h2>⚠️ Disable Two-Factor Authentication</h2>
+            <p>Enter your authenticator code to confirm disabling 2FA</p>
+            <p className="warning-text">
+              ⚠️ This will remove the extra security layer from your account
+            </p>
+          </div>
 
           {error && <div className="error-message">⚠️ {error}</div>}
 
-          <div className="verification-form">
-            {!useBackupCodeForDisable ? (
-              <div className="input-group">
-                <label>6-digit authenticator code:</label>
-                <input
-                  type="text"
-                  value={disableToken}
-                  onChange={(e) =>
-                    setDisableToken(
-                      e.target.value.replace(/\D/g, "").slice(0, 6)
-                    )
-                  }
-                  placeholder="000000"
-                  maxLength="6"
-                  disabled={actionLoading}
-                />
-              </div>
-            ) : (
-              <div className="input-group">
-                <label>Backup code:</label>
-                <input
-                  type="text"
-                  value={disableBackupCode}
-                  onChange={(e) => setDisableBackupCode(e.target.value)}
-                  placeholder="Enter backup code"
-                  disabled={actionLoading}
-                />
-              </div>
-            )}
+          <div className="verification-content">
+            <div className="input-section">
+              {!useBackupCodeForDisable ? (
+                <>
+                  <label>6-digit authenticator code:</label>
+                  <input
+                    type="text"
+                    value={disableToken}
+                    onChange={(e) =>
+                      setDisableToken(
+                        e.target.value.replace(/\D/g, "").slice(0, 6)
+                      )
+                    }
+                    placeholder="000000"
+                    maxLength="6"
+                    disabled={actionLoading}
+                    className="verification-input"
+                    autoComplete="off"
+                    onKeyPress={(e) =>
+                      e.key === "Enter" &&
+                      !actionLoading &&
+                      disableToken.length === 6 &&
+                      handleDisable2FA()
+                    }
+                  />
+                </>
+              ) : (
+                <>
+                  <label>Backup code:</label>
+                  <input
+                    type="text"
+                    value={disableBackupCode}
+                    onChange={(e) => setDisableBackupCode(e.target.value)}
+                    placeholder="Enter backup code"
+                    disabled={actionLoading}
+                    className="backup-input"
+                    autoComplete="off"
+                    onKeyPress={(e) =>
+                      e.key === "Enter" &&
+                      !actionLoading &&
+                      disableBackupCode.trim() &&
+                      handleDisable2FA()
+                    }
+                  />
+                </>
+              )}
+            </div>
 
             <div className="verification-actions">
               <button
@@ -194,9 +217,16 @@ export default function GoogleAuthManager() {
                   (!useBackupCodeForDisable && disableToken.length !== 6) ||
                   (useBackupCodeForDisable && !disableBackupCode.trim())
                 }
-                className="verify-btn danger"
+                className="verify-btn danger-btn"
               >
-                {actionLoading ? "Disabling..." : "Disable 2FA"}
+                {actionLoading ? (
+                  <>
+                    <span className="loading-spinner small"></span>
+                    Disabling...
+                  </>
+                ) : (
+                  "🔓 Disable 2FA"
+                )}
               </button>
 
               <button
@@ -226,8 +256,8 @@ export default function GoogleAuthManager() {
                 className="toggle-backup-btn"
               >
                 {useBackupCodeForDisable
-                  ? "Use authenticator code instead"
-                  : "Use backup code instead"}
+                  ? "🔢 Use authenticator code instead"
+                  : "🔑 Use backup code instead"}
               </button>
             </div>
           </div>
