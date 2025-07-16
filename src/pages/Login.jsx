@@ -3,6 +3,26 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import "./Auth.css";
 
+// Helper to translate technical error messages to user-friendly text
+function getFriendlyErrorMessage(error) {
+  console.log(error.message);
+  if (!error || !error.message) return "An unknown error occurred.";
+  const msg = error.message.toLowerCase();
+  if (msg.includes("network")) return "Network error: Please check your internet connection.";
+  if (msg.includes("password")) return "Incorrect password. Please try again.";
+  if (msg.includes("user not found")) return "No account found with this email.";
+  if (msg.includes("too many requests")) return "Too many login attempts. Please wait and try again later.";
+  if (msg.includes("otp")) return "There was a problem sending the OTP. Please try again.";
+  if (msg.includes("invalid email")) return "Please enter a valid email address.";
+  if (msg.includes("credential")) return "Invalid credentials. Please check your email and password.";
+  if (msg.includes("email already in use")) return "This email is already registered. Please log in.";
+  if (msg.includes("user disabled")) return "Your account has been disabled. Please contact support.";
+  if (msg.includes("operation not allowed")) return "This operation is not allowed. Please contact support.";
+  if (msg.includes("auth/")) return "Authentication error: " + msg.replace("auth/", "");
+  if (msg.includes("failed to fetch")) return "Unable to connect to the server. Please try again later.";
+  return error.message;
+}
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -56,7 +76,7 @@ export default function Login() {
         throw new Error(result.error || "Failed to send OTP");
       }
     } catch (error) {
-      setError("Failed to log in: " + error.message);
+      setError(getFriendlyErrorMessage(error));
     }
 
     setLoading(false);
@@ -114,7 +134,7 @@ export default function Login() {
         throw new Error(result.error || "Failed to send OTP");
       }
     } catch (error) {
-      setError("Failed to log in with Google: " + error.message);
+      setError(getFriendlyErrorMessage(error));
     }
 
     setLoading(false);
