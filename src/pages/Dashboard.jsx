@@ -602,7 +602,7 @@ export default function Dashboard() {
                 </div>
 
                 <div className="pattern-actions">
-                  <button className="stop-all-btn" onClick={stopPattern}>
+                  <button className="stop-all-btn" onClick={() => sendCommand("stop")}>
                     ⏹️ Stop All Patterns
                   </button>
                 </div>
