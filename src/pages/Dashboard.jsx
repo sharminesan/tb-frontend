@@ -333,7 +333,7 @@ export default function Dashboard() {
               </div>
             </div>
           </div>{" "}
-          {/* Local Webcam Feed */}
+          {/* Server Camera Feed */}
           <div className="video-feed-panel">
             <RobotVideoFeed
               backendUrl={backendUrl}

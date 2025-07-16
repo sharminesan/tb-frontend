@@ -4,72 +4,68 @@ import "./RobotVideoFeed.css";
 /**
  * RobotVideoFeed Component
  *
- * This component provides direct access to the user's local webcam using the Web API's getUserMedia().
+ * This component displays video stream from the backend server's camera.
  * Features:
- * - Real-time webcam streaming without backend dependency
- * - Permission handling and error management
+ * - Backend webcam streaming via HTTP/WebSocket
+ * - Connection status handling
  * - Snapshot capture functionality
  * - Responsive design with glassmorphism theme
- * - Device enumeration and status reporting
+ * - Error handling and reconnection logic
  *
- * The video is mirrored (like a selfie camera) for better user experience.
+ * The video stream comes from the server, not the client device.
  */
 
 export default function RobotVideoFeed({ backendUrl, isConnected }) {
   const [videoError, setVideoError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isVideoEnabled, setIsVideoEnabled] = useState(false);
-  const [hasPermission, setHasPermission] = useState(null);
-  const [deviceInfo, setDeviceInfo] = useState(null);
+  const [streamStatus, setStreamStatus] = useState("disconnected");
   const videoRef = useRef(null);
-  const streamRef = useRef(null);
+  const retryTimeoutRef = useRef(null);
 
-  // Check for camera permissions and availability on component mount
+  // Check backend connection and initialize video stream
   useEffect(() => {
-    checkCameraAvailability();
+    if (isConnected && backendUrl) {
+      checkBackendVideoAvailability();
+    } else {
+      setStreamStatus("disconnected");
+      setVideoError("Backend not connected");
+    }
+    
     return () => {
       stopVideoStream();
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+      }
     };
-  }, []);
+  }, [backendUrl, isConnected]);
 
   // Handle video stream when enabled/disabled
   useEffect(() => {
-    if (isVideoEnabled) {
+    if (isVideoEnabled && isConnected) {
       startVideoStream();
     } else {
       stopVideoStream();
     }
-  }, [isVideoEnabled]);
+  }, [isVideoEnabled, isConnected, backendUrl]);
 
-  const checkCameraAvailability = async () => {
+  const checkBackendVideoAvailability = async () => {
     try {
-      // Check if getUserMedia is supported
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        setVideoError("Camera access is not supported in this browser");
-        return;
-      }
-
-      // Check camera permissions
-      const permission = await navigator.permissions.query({ name: "camera" });
-      setHasPermission(permission.state);
-
-      // Get available video devices
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const videoDevices = devices.filter(
-        (device) => device.kind === "videoinput"
-      );
-
-      if (videoDevices.length > 0) {
-        setDeviceInfo({
-          count: videoDevices.length,
-          defaultDevice: videoDevices[0].label || "Camera 1",
-        });
+      const response = await fetch(`${backendUrl}/api/webcam/status`);
+      if (response.ok) {
+        const status = await response.json();
+        setStreamStatus(status.available ? "available" : "unavailable");
+        if (!status.available) {
+          setVideoError(status.error || "Camera not available on server");
+        }
       } else {
-        setVideoError("No camera devices found");
+        setStreamStatus("unavailable");
+        setVideoError("Cannot check camera status on server");
       }
     } catch (error) {
-      console.error("Error checking camera availability:", error);
-      setVideoError("Unable to check camera availability");
+      console.error("Error checking backend camera:", error);
+      setStreamStatus("unavailable");
+      setVideoError("Failed to connect to camera service");
     }
   };
 
@@ -78,132 +74,162 @@ export default function RobotVideoFeed({ backendUrl, isConnected }) {
       setIsLoading(true);
       setVideoError("");
 
-      // Request camera access
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          width: { ideal: 640 },
-          height: { ideal: 480 },
-          frameRate: { ideal: 30 },
-        },
-        audio: false,
-      });
+      if (!backendUrl) {
+        setVideoError("Backend URL not configured");
+        setIsLoading(false);
+        return;
+      }
 
-      streamRef.current = stream;
-
+      // Set video source to backend stream endpoint
       if (videoRef.current) {
-        videoRef.current.srcObject = stream;
+        const streamUrl = `${backendUrl}/api/webcam/stream?t=${Date.now()}`;
+        videoRef.current.src = streamUrl;
 
-        videoRef.current.onloadedmetadata = () => {
+        videoRef.current.onloadstart = () => {
+          setIsLoading(true);
+          setStreamStatus("connecting");
+        };
+
+        videoRef.current.onloadeddata = () => {
           setIsLoading(false);
-          setHasPermission("granted");
+          setStreamStatus("connected");
+          setVideoError("");
         };
 
         videoRef.current.onerror = (error) => {
-          console.error("Video element error:", error);
+          console.error("Video stream error:", error);
           setIsLoading(false);
-          setVideoError("Error displaying video stream");
+          setStreamStatus("error");
+          setVideoError("Failed to load video stream from server");
+          
+          // Retry connection after 3 seconds
+          retryTimeoutRef.current = setTimeout(() => {
+            if (isVideoEnabled) {
+              startVideoStream();
+            }
+          }, 3000);
+        };
+
+        videoRef.current.onended = () => {
+          console.log("Video stream ended");
+          setStreamStatus("disconnected");
+          
+          // Retry connection after 2 seconds
+          retryTimeoutRef.current = setTimeout(() => {
+            if (isVideoEnabled) {
+              startVideoStream();
+            }
+          }, 2000);
         };
       }
     } catch (error) {
       setIsLoading(false);
-      console.error("Error accessing camera:", error);
-
-      if (error.name === "NotAllowedError") {
-        setVideoError(
-          "Camera access denied. Please allow camera permissions and try again."
-        );
-        setHasPermission("denied");
-      } else if (error.name === "NotFoundError") {
-        setVideoError(
-          "No camera found. Please connect a camera and try again."
-        );
-      } else if (error.name === "NotReadableError") {
-        setVideoError("Camera is already in use by another application.");
-      } else {
-        setVideoError(`Camera error: ${error.message}`);
-      }
+      console.error("Error starting video stream:", error);
+      setVideoError(`Video stream error: ${error.message}`);
+      setStreamStatus("error");
     }
   };
 
   const stopVideoStream = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => {
-        track.stop();
-      });
-      streamRef.current = null;
+    if (retryTimeoutRef.current) {
+      clearTimeout(retryTimeoutRef.current);
+      retryTimeoutRef.current = null;
     }
 
     if (videoRef.current) {
-      videoRef.current.srcObject = null;
+      videoRef.current.src = "";
+      videoRef.current.load(); // Reset video element
     }
 
     setIsLoading(false);
+    setStreamStatus("disconnected");
   };
 
   const toggleVideo = () => {
     setIsVideoEnabled(!isVideoEnabled);
   };
 
-  const takeSnapshot = () => {
-    if (!videoRef.current || !streamRef.current) {
-      setVideoError("No video stream available for snapshot");
-      return;
-    }
-
+  const takeSnapshot = async () => {
     try {
-      // Create a canvas to capture the current frame
-      const canvas = document.createElement("canvas");
-      const video = videoRef.current;
-
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      // Convert to blob and download
-      canvas.toBlob((blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `webcam-snapshot-${new Date()
-          .toISOString()
-          .slice(0, 19)
-          .replace(/:/g, "-")}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-      }, "image/png");
+      const response = await fetch(`${backendUrl}/api/webcam/snapshot`, {
+        method: 'POST',
+      });
+      
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        
+        // Create download link
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `snapshot-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.jpg`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } else {
+        setVideoError("Failed to capture snapshot");
+      }
     } catch (error) {
-      console.error("Snapshot error:", error);
-      setVideoError("Error taking snapshot");
+      console.error("Error taking snapshot:", error);
+      setVideoError("Snapshot capture failed");
     }
   };
 
-  const requestPermissions = async () => {
-    try {
-      setVideoError("");
-      await startVideoStream();
-    } catch (error) {
-      // Error handling is already done in startVideoStream
+  const refreshStream = () => {
+    stopVideoStream();
+    if (isConnected) {
+      setTimeout(() => {
+        checkBackendVideoAvailability();
+        if (isVideoEnabled) {
+          startVideoStream();
+        }
+      }, 500);
+    }
+  };
+
+  const getStatusColor = () => {
+    switch (streamStatus) {
+      case "connected": return "connected";
+      case "connecting": return "warning";
+      case "available": return "warning";
+      case "unavailable": 
+      case "error": 
+      case "disconnected": 
+      default: return "disconnected";
+    }
+  };
+
+  const getStatusText = () => {
+    if (!isConnected) return "Backend Offline";
+    if (!isVideoEnabled) return "Stopped";
+    if (isLoading) return "Starting...";
+    
+    switch (streamStatus) {
+      case "connected": return "Live Stream";
+      case "connecting": return "Connecting...";
+      case "available": return "Ready";
+      case "unavailable": return "Camera Unavailable";
+      case "error": return "Stream Error";
+      case "disconnected": return "Disconnected";
+      default: return "Unknown";
     }
   };
 
   return (
     <div className="robot-video-feed">
       <div className="video-header">
-        <h3>🎥 Local Webcam</h3>
+        <h3>🎥 Server Camera</h3>
         <div className="video-controls">
           <button
             className={`toggle-video-btn ${isVideoEnabled ? "active" : ""}`}
             onClick={toggleVideo}
-            disabled={isLoading}
-            title="Toggle webcam feed"
+            disabled={isLoading || !isConnected}
+            title="Toggle video stream"
           >
             {isVideoEnabled ? "🔴 Stop" : "▶️ Start"}
           </button>
-          {isVideoEnabled && streamRef.current && (
+          {isVideoEnabled && streamStatus === "connected" && (
             <button
               className="snapshot-btn"
               onClick={takeSnapshot}
@@ -213,18 +239,27 @@ export default function RobotVideoFeed({ backendUrl, isConnected }) {
               📸 Snapshot
             </button>
           )}
+          <button
+            className="refresh-btn"
+            onClick={refreshStream}
+            disabled={isLoading}
+            title="Refresh stream"
+          >
+            🔄 Refresh
+          </button>
         </div>
       </div>
+      
       <div className="video-container">
         {!isVideoEnabled ? (
           <div className="video-placeholder">
             <div className="placeholder-content">
               <span className="placeholder-icon">🎥</span>
-              <p>Click "Start" to begin webcam stream</p>
-              {hasPermission === "denied" && (
-                <button className="permission-btn" onClick={requestPermissions}>
-                  🔓 Request Camera Access
-                </button>
+              <p>Click "Start" to begin video stream</p>
+              {!isConnected && (
+                <p className="connection-warning">
+                  ⚠️ Backend connection required
+                </p>
               )}
             </div>
           </div>
@@ -233,7 +268,7 @@ export default function RobotVideoFeed({ backendUrl, isConnected }) {
             {isLoading && (
               <div className="video-loading">
                 <div className="loading-spinner"></div>
-                <p>Starting webcam...</p>
+                <p>Loading video stream...</p>
               </div>
             )}
             <video
@@ -242,6 +277,7 @@ export default function RobotVideoFeed({ backendUrl, isConnected }) {
               autoPlay
               playsInline
               muted
+              controls={false}
               style={{ display: isLoading ? "none" : "block" }}
             />
           </>
@@ -251,61 +287,36 @@ export default function RobotVideoFeed({ backendUrl, isConnected }) {
           <div className="video-error">
             <span className="error-icon">⚠️</span>
             <p>{videoError}</p>
-            {hasPermission === "denied" ? (
-              <button className="retry-btn" onClick={requestPermissions}>
-                🔓 Grant Camera Access
-              </button>
-            ) : (
-              <button className="retry-btn" onClick={checkCameraAvailability}>
-                🔄 Retry
-              </button>
-            )}
+            <button className="retry-btn" onClick={refreshStream}>
+              🔄 Retry Connection
+            </button>
           </div>
         )}
-      </div>{" "}
+      </div>
+      
       <div className="video-info">
         <div className="info-item">
           <span className="info-label">Status:</span>
-          <span
-            className={`info-value ${
-              streamRef.current ? "connected" : "disconnected"
-            }`}
-          >
-            {isVideoEnabled
-              ? isLoading
-                ? "Starting..."
-                : streamRef.current
-                ? "Live"
-                : "Error"
-              : "Stopped"}
+          <span className={`info-value ${getStatusColor()}`}>
+            {getStatusText()}
           </span>
         </div>
         <div className="info-item">
           <span className="info-label">Source:</span>
-          <span className="info-value">
-            {deviceInfo ? deviceInfo.defaultDevice : "Local Webcam"}
+          <span className="info-value">Server Camera</span>
+        </div>
+        <div className="info-item">
+          <span className="info-label">Backend:</span>
+          <span className={`info-value ${isConnected ? "connected" : "disconnected"}`}>
+            {isConnected ? "Connected" : "Offline"}
           </span>
         </div>
         <div className="info-item">
-          <span className="info-label">Permission:</span>
-          <span
-            className={`info-value ${
-              hasPermission === "granted" ? "connected" : "disconnected"
-            }`}
-          >
-            {hasPermission === "granted"
-              ? "Allowed"
-              : hasPermission === "denied"
-              ? "Denied"
-              : "Unknown"}
+          <span className="info-label">Stream URL:</span>
+          <span className="info-value url-display">
+            📡 {backendUrl}/api/webcam/stream
           </span>
         </div>
-        {deviceInfo && (
-          <div className="info-item">
-            <span className="info-label">Devices:</span>
-            <span className="info-value">{deviceInfo.count} found</span>
-          </div>
-        )}
       </div>
     </div>
   );

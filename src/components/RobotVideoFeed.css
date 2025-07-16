@@ -31,7 +31,8 @@
 
 .toggle-video-btn,
 .snapshot-btn,
-.retry-btn {
+.retry-btn,
+.refresh-btn {
   background: linear-gradient(135deg, #4facfe, #00f2fe);
   color: white;
   border: none;
@@ -46,7 +47,8 @@
 
 .toggle-video-btn:hover:not(:disabled),
 .snapshot-btn:hover:not(:disabled),
-.retry-btn:hover {
+.retry-btn:hover,
+.refresh-btn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
 }
@@ -75,6 +77,15 @@
 
 .snapshot-btn:hover:not(:disabled) {
   box-shadow: 0 6px 20px rgba(240, 147, 251, 0.4);
+}
+
+.refresh-btn {
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+}
+
+.refresh-btn:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
 }
 
 .video-container {
@@ -246,6 +257,28 @@
 
 .info-value.disconnected {
   color: #ff6b6b;
+}
+
+/* Warning status for connecting/available states */
+.info-value.warning {
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  color: white;
+}
+
+.connection-warning {
+  color: rgba(255, 152, 0, 0.9);
+  font-size: 0.9rem;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.url-display {
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+  word-break: break-all;
 }
 
 /* Responsive Design */
