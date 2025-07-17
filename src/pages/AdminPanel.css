@@ -4,7 +4,60 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding.promote-section .home-link {
+    align-self: center;
+    margin-top: 10px;
+  }
+
+  .admin-links {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .admin-links .home-link,
+  .admin-links .settings-link {
+    margin-top: 0;
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .settings-link {
+    display: inline-block;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .settings-link:before {
+    content: "⚙️";
+    margin-right: 8px;
+    font-size: 1rem;
+  }
+
+  .settings-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
+    background: linear-gradient(135deg, #357abd 0%, #4a90e2 100%);
+  }
+
+  .settings-link:active {
+    transform: translateY(0);
+    box-shadow: 0 3px 10px rgba(74, 144, 226, 0.3);
+  }
 }
 
 .admin-card {

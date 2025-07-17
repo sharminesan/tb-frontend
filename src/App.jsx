@@ -15,6 +15,7 @@ import Register from "./pages/Register";
 import OTPVerification from "./pages/OTPVerification";
 import Dashboard from "./pages/Dashboard";
 import AdminPanel from "./pages/AdminPanel";
+import Settings from "./pages/Settings";
 import "./App.css";
 
 function App() {
@@ -27,6 +28,14 @@ function App() {
               {" "}
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route
+                path="/settings"
+                element={
+                  <ProtectedRoute>
+                    <Settings />
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path="/verify-otp"
                 element={

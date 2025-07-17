@@ -134,9 +134,14 @@ export default function AdminPanel() {
                 {loading ? "Editing..." : "Edit User Role"}
               </button>
             </form>
-            <Link to="/dashboard" className="home-link">
-              Home
-            </Link>
+            <div className="admin-links">
+              <Link to="/dashboard" className="home-link">
+                Home
+              </Link>
+              <Link to="/settings" className="settings-link">
+                Settings
+              </Link>
+            </div>
           </div>
         )}
 

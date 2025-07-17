@@ -303,6 +303,12 @@ export default function Dashboard() {
               Welcome, {currentUser?.displayName || currentUser?.email}
               {userRole && <span className="user-role">({userRole})</span>}
             </span>
+            <button
+              onClick={() => navigate("/settings")}
+              className="settings-btn"
+            >
+              Settings
+            </button>
             <button onClick={handleLogout} className="logout-btn">
               Logout
             </button>
