@@ -11,6 +11,7 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { useBackend } from "./BackendContext";
 
 // Firebase config
 const firebaseConfig = {
@@ -40,6 +41,9 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [emailVerified, setEmailVerifiedState] = useState(false); // Add OTP verification state
 
+  // Use BackendContext for dynamic URL management
+  const { backendUrl } = useBackend();
+
   // Wrapper function to log when emailVerified changes
   const setEmailVerified = (value) => {
     console.log(
@@ -47,10 +51,6 @@ export function AuthProvider({ children }) {
     );
     setEmailVerifiedState(value);
   };
-  // Backend URL for role management
-  const [backendUrl] = useState(
-    import.meta.env.VITE_BACKEND_URL || "http://localhost:4000"
-  );
   // Auth functions
   const signup = async (email, password, role = "user") => {
     console.log("🔐 Attempting to create user with role:", role);

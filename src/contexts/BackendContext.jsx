@@ -13,10 +13,7 @@ export function useBackend() {
 export function BackendProvider({ children }) {
   const [backendUrl, setBackendUrl] = useState(() => {
     // Try to get from localStorage first, then fallback to env variable
-    const savedUrl = localStorage.getItem("turtlebot_backend_url");
-    return (
-      savedUrl || import.meta.env.VITE_BACKEND_URL || "http://localhost:4000"
-    );
+    return import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
   });
 
   // Save to localStorage whenever the URL changes
