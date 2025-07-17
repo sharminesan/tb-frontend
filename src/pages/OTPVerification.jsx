@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import "./Auth.css";
@@ -10,6 +10,8 @@ export default function OTPVerification() {
   const [resendLoading, setResendLoading] = useState(false);
   const [resendTimer, setResendTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
+
+  const firstInputRef = useRef(null);
 
   const { currentUser, logout, checkEmailVerification } = useAuth();
   const navigate = useNavigate();
@@ -25,6 +27,11 @@ export default function OTPVerification() {
     if (!email) {
       navigate("/login");
       return;
+    }
+
+    // Auto-focus the first input when component mounts
+    if (firstInputRef.current) {
+      firstInputRef.current.focus();
     }
 
     // Start countdown timer
@@ -182,6 +189,7 @@ export default function OTPVerification() {
               <input
                 key={index}
                 id={`otp-${index}`}
+                ref={index === 0 ? firstInputRef : null}
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]"
