@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useBackend } from "../contexts/BackendContext";
 import "./Auth.css";
 
 // Password validation function following Google's best practices
@@ -66,6 +67,7 @@ export default function Register() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { signup, updateUserProfile, loginWithGoogle } = useAuth();
+  const { backendUrl } = useBackend();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -95,10 +97,6 @@ export default function Register() {
       setLoading(true);
       const { user } = await signup(email, password, role);
       await updateUserProfile({ displayName: fullName });
-
-      // Get backend URL from environment variable
-      const backendUrl =
-        import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
 
       // Send OTP after successful registration
       const token = await user.getIdToken();
@@ -131,10 +129,6 @@ export default function Register() {
       setLoading(true);
       const result = await loginWithGoogle();
       const user = result.user;
-
-      // Get backend URL from environment variable
-      const backendUrl =
-        import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
 
       // Send OTP after successful Google registration
       const token = await user.getIdToken();

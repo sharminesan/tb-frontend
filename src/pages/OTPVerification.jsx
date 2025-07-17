@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useBackend } from "../contexts/BackendContext";
 import "./Auth.css";
 
 export default function OTPVerification() {
@@ -13,12 +14,9 @@ export default function OTPVerification() {
   const firstInputRef = useRef(null);
 
   const { currentUser, logout, checkEmailVerification } = useAuth();
+  const { backendUrl } = useBackend();
   const navigate = useNavigate();
   const location = useLocation();
-
-  // Get backend URL from environment variable
-  const backendUrl =
-    import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
 
   const email = location.state?.email || currentUser?.email;
 

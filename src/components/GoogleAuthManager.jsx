@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { useBackend } from "../contexts/BackendContext";
 import GoogleAuthService from "../services/googleAuthService";
 import GoogleAuthSetup from "./GoogleAuthSetup";
 import GoogleAuthVerification from "./GoogleAuthVerification";
@@ -7,6 +8,7 @@ import "./GoogleAuthManager.css";
 
 export default function GoogleAuthManager() {
   const { currentUser } = useAuth();
+  const { backendUrl } = useBackend();
   const [twoFactorStatus, setTwoFactorStatus] = useState({
     enabled: false,
     verified: false,
@@ -25,10 +27,13 @@ export default function GoogleAuthManager() {
   const googleAuthService = new GoogleAuthService();
 
   useEffect(() => {
+    // Update the service URL when backend URL changes
+    googleAuthService.setBackendUrl(backendUrl);
+
     if (currentUser) {
       checkTwoFactorStatus();
     }
-  }, [currentUser]);
+  }, [currentUser, backendUrl]);
 
   const checkTwoFactorStatus = async () => {
     try {

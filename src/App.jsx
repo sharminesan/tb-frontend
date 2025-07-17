@@ -5,6 +5,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
+import { BackendProvider } from "./contexts/BackendContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import OTPProtectedRoute from "./components/OTPProtectedRoute";
 import TwoFactorProtectedRoute from "./components/TwoFactorProtectedRoute";
@@ -18,48 +19,50 @@ import "./App.css";
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <div className="App">
-          <Routes>
-            {" "}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route
-              path="/verify-otp"
-              element={
-                <ProtectedRoute>
-                  <OTPVerification />
-                </ProtectedRoute>
-              }
-            />{" "}
-            <Route
-              path="/dashboard"
-              element={
-                <OTPProtectedRoute>
-                  <TwoFactorProtectedRoute>
-                    <Dashboard />
-                  </TwoFactorProtectedRoute>
-                </OTPProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin"
-              element={
-                <OTPProtectedRoute>
-                  <TwoFactorProtectedRoute>
-                    <RoleProtectedRoute allowedRoles={["admin"]}>
-                      <AdminPanel />
-                    </RoleProtectedRoute>
-                  </TwoFactorProtectedRoute>
-                </OTPProtectedRoute>
-              }
-            />{" "}
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
-        </div>
-      </Router>
-    </AuthProvider>
+    <BackendProvider>
+      <AuthProvider>
+        <Router>
+          <div className="App">
+            <Routes>
+              {" "}
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route
+                path="/verify-otp"
+                element={
+                  <ProtectedRoute>
+                    <OTPVerification />
+                  </ProtectedRoute>
+                }
+              />{" "}
+              <Route
+                path="/dashboard"
+                element={
+                  <OTPProtectedRoute>
+                    <TwoFactorProtectedRoute>
+                      <Dashboard />
+                    </TwoFactorProtectedRoute>
+                  </OTPProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <OTPProtectedRoute>
+                    <TwoFactorProtectedRoute>
+                      <RoleProtectedRoute allowedRoles={["admin"]}>
+                        <AdminPanel />
+                      </RoleProtectedRoute>
+                    </TwoFactorProtectedRoute>
+                  </OTPProtectedRoute>
+                }
+              />{" "}
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            </Routes>
+          </div>
+        </Router>
+      </AuthProvider>
+    </BackendProvider>
   );
 }
 

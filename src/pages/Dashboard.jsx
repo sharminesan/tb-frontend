@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { useBackend } from "../contexts/BackendContext";
 import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 import GoogleAuthManager from "../components/GoogleAuthManager";
@@ -8,14 +9,12 @@ import "./Dashboard.css";
 
 export default function Dashboard() {
   const { currentUser, userRole, logout } = useAuth();
+  const { backendUrl, updateBackendUrl } = useBackend();
   const navigate = useNavigate();
   const [socket, setSocket] = useState(null);
   const [connectionStatus, setConnectionStatus] = useState("Disconnected");
   const [batteryStatus, setBatteryStatus] = useState("Unknown");
   const [robotStatus, setRobotStatus] = useState(null);
-  const [backendUrl, setBackendUrl] = useState(
-    import.meta.env.VITE_BACKEND_URL || "http://localhost:4000"
-  );
 
   // State for dance pattern controls
   const [patternSettings, setPatternSettings] = useState({
@@ -174,7 +173,7 @@ export default function Dashboard() {
 
   const handleBackendUrlChange = (e) => {
     const newUrl = e.target.value;
-    setBackendUrl(newUrl);
+    updateBackendUrl(newUrl);
 
     // Disconnect current socket if connected
     if (socket && socket.connected) {
@@ -602,7 +601,10 @@ export default function Dashboard() {
                 </div>
 
                 <div className="pattern-actions">
-                  <button className="stop-all-btn" onClick={() => sendCommand("stop")}>
+                  <button
+                    className="stop-all-btn"
+                    onClick={() => sendCommand("stop")}
+                  >
                     ⏹️ Stop All Patterns
                   </button>
                 </div>

@@ -1,18 +1,16 @@
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { useBackend } from "../contexts/BackendContext";
 import "./AdminPanel.css";
 import { Link } from "react-router-dom";
 
 export default function AdminPanel() {
   const { currentUser, userRole } = useAuth();
+  const { backendUrl } = useBackend();
   const [email, setEmail] = useState("");
   const [targetRole, setTargetRole] = useState("user");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-
-  // Get backend URL from environment variable
-  const backendUrl =
-    import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
 
   const promoteUser = async (e) => {
     e.preventDefault();

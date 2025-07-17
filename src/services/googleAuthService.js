@@ -1,11 +1,17 @@
 // Google Authenticator API service
 import { getAuth } from "firebase/auth";
 
-const API_BASE = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
-
 class GoogleAuthService {
   constructor() {
-    this.baseUrl = `${API_BASE}/api/google-auth`;
+    this.baseUrl = null;
+    this.setBackendUrl(
+      import.meta.env.VITE_BACKEND_URL || "http://localhost:4000"
+    );
+  }
+
+  // Set the backend URL dynamically
+  setBackendUrl(url) {
+    this.baseUrl = `${url}/api/google-auth`;
   }
 
   // Get authentication headers with Firebase token

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useBackend } from "../contexts/BackendContext";
 import { db } from "../contexts/AuthContext";
 import { collection, doc, getDoc } from "firebase/firestore";
 import "./Auth.css";
@@ -43,11 +44,8 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [showRegistrationPrompt, setShowRegistrationPrompt] = useState(false);
   const { login, loginWithGoogle, resetEmailVerification } = useAuth();
+  const { backendUrl } = useBackend();
   const navigate = useNavigate();
-
-  // Get backend URL from environment variable
-  const backendUrl =
-    import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
 
   // Function to check if user exists in Firestore
   async function checkUserExists(email) {
