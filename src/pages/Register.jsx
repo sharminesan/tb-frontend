@@ -95,7 +95,29 @@ export default function Register() {
       setLoading(true);
       const { user } = await signup(email, password, role);
       await updateUserProfile({ displayName: fullName });
-      navigate("/dashboard");
+
+      // Get backend URL from environment variable
+      const backendUrl =
+        import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
+
+      // Send OTP after successful registration
+      const token = await user.getIdToken();
+      const otpResponse = await fetch(`${backendUrl}/api/otp/send-otp`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (otpResponse.ok) {
+        // Navigate to OTP verification page
+        navigate("/verify-otp", { state: { email } });
+      } else {
+        const result = await otpResponse.json();
+        throw new Error(result.error || "Failed to send OTP");
+      }
     } catch (error) {
       setError(getFriendlyErrorMessage(error));
     }
@@ -107,8 +129,31 @@ export default function Register() {
     try {
       setError("");
       setLoading(true);
-      await loginWithGoogle();
-      navigate("/dashboard");
+      const result = await loginWithGoogle();
+      const user = result.user;
+
+      // Get backend URL from environment variable
+      const backendUrl =
+        import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
+
+      // Send OTP after successful Google registration
+      const token = await user.getIdToken();
+      const otpResponse = await fetch(`${backendUrl}/api/otp/send-otp`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ email: user.email }),
+      });
+
+      if (otpResponse.ok) {
+        // Navigate to OTP verification page
+        navigate("/verify-otp", { state: { email: user.email } });
+      } else {
+        const result = await otpResponse.json();
+        throw new Error(result.error || "Failed to send OTP");
+      }
     } catch (error) {
       setError(getFriendlyErrorMessage(error));
     }
