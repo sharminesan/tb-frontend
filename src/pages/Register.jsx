@@ -1,41 +1,41 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import "./Auth.css";
 
 // Password validation function following Google's best practices
 function validatePassword(password) {
   const errors = [];
-  
+
   if (password.length < 8) {
     errors.push("At least 8 characters");
   }
-  
+
   if (!/[a-z]/.test(password)) {
     errors.push("At least one lowercase letter");
   }
-  
+
   if (!/[A-Z]/.test(password)) {
     errors.push("At least one uppercase letter");
   }
-  
+
   if (!/[0-9]/.test(password)) {
     errors.push("At least one number");
   }
-  
+
   if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
     errors.push("At least one special character");
   }
-  
+
   // Check for common weak patterns
   if (/(.)\1{2,}/.test(password)) {
     errors.push("No more than 2 repeated characters in a row");
   }
-  
+
   if (/123|abc|password|qwerty/i.test(password)) {
     errors.push("No common patterns (123, abc, password, etc.)");
   }
-  
+
   return errors;
 }
 
@@ -43,11 +43,16 @@ function validatePassword(password) {
 function getFriendlyErrorMessage(error) {
   if (!error || !error.message) return "An unknown error occurred.";
   const msg = error.message.toLowerCase();
-  if (msg.includes("network")) return "Network error: Please check your internet connection.";
-  if (msg.includes("email-already-in-use")) return "An account with this email already exists. Please try logging in instead.";
-  if (msg.includes("weak-password")) return "Password is too weak. Please follow the requirements shown.";
-  if (msg.includes("invalid-email")) return "Please enter a valid email address.";
-  if (msg.includes("failed to fetch")) return "Unable to connect to the server. Please try again later.";
+  if (msg.includes("network"))
+    return "Network error: Please check your internet connection.";
+  if (msg.includes("email-already-in-use"))
+    return "An account with this email already exists. Please try logging in instead.";
+  if (msg.includes("weak-password"))
+    return "Password is too weak. Please follow the requirements shown.";
+  if (msg.includes("invalid-email"))
+    return "Please enter a valid email address.";
+  if (msg.includes("failed to fetch"))
+    return "Unable to connect to the server. Please try again later.";
   // Add more mappings as needed
   return error.message;
 }
@@ -62,6 +67,14 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const { signup, updateUserProfile, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Pre-fill email if passed from login page
+  useEffect(() => {
+    if (location.state?.email) {
+      setEmail(location.state.email);
+    }
+  }, [location.state]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -72,7 +85,8 @@ export default function Register() {
 
     const passwordErrors = validatePassword(password);
     if (passwordErrors.length > 0) {
-      const errorMessage = "Password requirements not met:\n• " + passwordErrors.join("\n• ");
+      const errorMessage =
+        "Password requirements not met:\n• " + passwordErrors.join("\n• ");
       return setError(errorMessage);
     }
 

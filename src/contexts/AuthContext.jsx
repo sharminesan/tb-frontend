@@ -10,6 +10,7 @@ import {
   onAuthStateChanged,
   updateProfile,
 } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
 // Firebase config
 const firebaseConfig = {
@@ -24,6 +25,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 
 const AuthContext = createContext();
@@ -275,3 +277,6 @@ export function AuthProvider({ children }) {
     </AuthContext.Provider>
   );
 }
+
+// Export the database instance for use in other components
+export { db };

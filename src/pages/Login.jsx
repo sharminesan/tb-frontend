@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { db } from "../contexts/AuthContext";
+import { collection, doc, getDoc } from "firebase/firestore";
 import "./Auth.css";
 
 // Helper to translate technical error messages to user-friendly text
@@ -8,18 +10,29 @@ function getFriendlyErrorMessage(error) {
   console.log(error.message);
   if (!error || !error.message) return "An unknown error occurred.";
   const msg = error.message.toLowerCase();
-  if (msg.includes("network")) return "Network error: Please check your internet connection.";
+  if (msg.includes("network"))
+    return "Network error: Please check your internet connection.";
   if (msg.includes("password")) return "Incorrect password. Please try again.";
-  if (msg.includes("user not found")) return "No account found with this email.";
-  if (msg.includes("too many requests")) return "Too many login attempts. Please wait and try again later.";
-  if (msg.includes("otp")) return "There was a problem sending the OTP. Please try again.";
-  if (msg.includes("invalid email")) return "Please enter a valid email address.";
-  if (msg.includes("credential")) return "Invalid credentials. Please check your email and password.";
-  if (msg.includes("email already in use")) return "This email is already registered. Please log in.";
-  if (msg.includes("user disabled")) return "Your account has been disabled. Please contact support.";
-  if (msg.includes("operation not allowed")) return "This operation is not allowed. Please contact support.";
-  if (msg.includes("auth/")) return "Authentication error: " + msg.replace("auth/", "");
-  if (msg.includes("failed to fetch")) return "Unable to connect to the server. Please try again later.";
+  if (msg.includes("user not found"))
+    return "No account found with this email.";
+  if (msg.includes("too many requests"))
+    return "Too many login attempts. Please wait and try again later.";
+  if (msg.includes("otp"))
+    return "There was a problem sending the OTP. Please try again.";
+  if (msg.includes("invalid email"))
+    return "Please enter a valid email address.";
+  if (msg.includes("credential"))
+    return "Invalid credentials. Please check your email and password.";
+  if (msg.includes("email already in use"))
+    return "This email is already registered. Please log in.";
+  if (msg.includes("user disabled"))
+    return "Your account has been disabled. Please contact support.";
+  if (msg.includes("operation not allowed"))
+    return "This operation is not allowed. Please contact support.";
+  if (msg.includes("auth/"))
+    return "Authentication error: " + msg.replace("auth/", "");
+  if (msg.includes("failed to fetch"))
+    return "Unable to connect to the server. Please try again later.";
   return error.message;
 }
 
@@ -28,18 +41,46 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showRegistrationPrompt, setShowRegistrationPrompt] = useState(false);
   const { login, loginWithGoogle, resetEmailVerification } = useAuth();
   const navigate = useNavigate();
 
   // Get backend URL from environment variable
   const backendUrl =
     import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
+
+  // Function to check if user exists in Firestore
+  async function checkUserExists(email) {
+    try {
+      const userDocRef = doc(db, "user_sessions", email.toLowerCase());
+      const userDoc = await getDoc(userDocRef);
+      return userDoc.exists();
+    } catch (error) {
+      console.error("Error checking user existence:", error);
+      return true; // If error, assume user exists to avoid blocking login
+    }
+  }
+
+  // Function to handle registration redirect
+  function handleRegistrationRedirect() {
+    setShowRegistrationPrompt(false);
+    navigate("/register", { state: { email } });
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
 
     try {
       setError("");
       setLoading(true);
+
+      // First check if user exists in Firestore
+      const userExists = await checkUserExists(email);
+      if (!userExists) {
+        setLoading(false);
+        setShowRegistrationPrompt(true);
+        return;
+      }
 
       // Login user first
       const userCredential = await login(email, password);
@@ -158,6 +199,7 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              autoFocus
             />
           </div>
           <div className="form-group">
@@ -190,6 +232,36 @@ export default function Login() {
           Don't have an account? <Link to="/register">Create one here</Link>
         </div>
       </div>
+
+      {/* Registration Prompt Modal */}
+      {showRegistrationPrompt && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Account Not Found</h3>
+            </div>
+            <div className="modal-body">
+              <p>We couldn't find an account with the email:</p>
+              <p className="email-highlight">{email}</p>
+              <p>Would you like to create a new account instead?</p>
+            </div>
+            <div className="modal-actions">
+              <button
+                className="modal-btn primary"
+                onClick={handleRegistrationRedirect}
+              >
+                Create Account
+              </button>
+              <button
+                className="modal-btn secondary"
+                onClick={() => setShowRegistrationPrompt(false)}
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
