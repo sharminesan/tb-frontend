@@ -484,11 +484,11 @@ const RobotVideoFeed = ({ backendUrl, isConnected }) => {
         </div>
       </div>
 
-      <div className="status-message">
+      {/*<div className="status-message">
         <div className={`status ${statusType}`}>{statusMessage}</div>
-      </div>
+      </div> */}
 
-      <div className="debug-panel">
+      {/*<div className="debug-panel">
         <h4>🔧 Debug Information</h4>
         <div className="debug-log">
           {debugLogs.map((log, index) => (
@@ -497,7 +497,7 @@ const RobotVideoFeed = ({ backendUrl, isConnected }) => {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };
