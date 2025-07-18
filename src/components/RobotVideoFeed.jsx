@@ -40,6 +40,7 @@ const RobotVideoFeed = ({ backendUrl, isConnected }) => {
   // Refs
   const socketRef = useRef(null);
   const viewerRef = useRef(null);
+  const canvasRef = useRef(null);
   const lastFrameTimeRef = useRef(Date.now());
   const dataTransferredRef = useRef(0);
   const lastDataRateUpdateRef = useRef(Date.now());
@@ -69,8 +70,14 @@ const RobotVideoFeed = ({ backendUrl, isConnected }) => {
     const timeDiff = (now - lastFrameTimeRef.current) / 1000;
 
     if (timeDiff > 0) {
-      const fps = Math.round(1 / timeDiff);
-      setCurrentFps(fps);
+      // Calculate instantaneous FPS but smooth it out
+      const instantFps = 1 / timeDiff;
+      // Use a simple moving average for smoother FPS display
+      setCurrentFps((prev) => {
+        const smoothedFps =
+          prev === 0 ? instantFps : prev * 0.8 + instantFps * 0.2;
+        return Math.round(smoothedFps);
+      });
     }
 
     lastFrameTimeRef.current = now;
@@ -128,27 +135,20 @@ const RobotVideoFeed = ({ backendUrl, isConnected }) => {
   };
 
   const handleFullscreen = () => {
-    if (viewerRef.current) {
-      if (viewerRef.current.requestFullscreen) {
-        viewerRef.current.requestFullscreen();
-      } else if (viewerRef.current.webkitRequestFullscreen) {
-        viewerRef.current.webkitRequestFullscreen();
-      } else if (viewerRef.current.msRequestFullscreen) {
-        viewerRef.current.msRequestFullscreen();
+    if (canvasRef.current) {
+      if (canvasRef.current.requestFullscreen) {
+        canvasRef.current.requestFullscreen();
+      } else if (canvasRef.current.webkitRequestFullscreen) {
+        canvasRef.current.webkitRequestFullscreen();
+      } else if (canvasRef.current.msRequestFullscreen) {
+        canvasRef.current.msRequestFullscreen();
       }
     }
   };
 
   const handleSnapshot = () => {
-    if (viewerRef.current) {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-
-      canvas.width = viewerRef.current.naturalWidth;
-      canvas.height = viewerRef.current.naturalHeight;
-
-      ctx.drawImage(viewerRef.current, 0, 0);
-
+    if (canvasRef.current) {
+      const canvas = canvasRef.current;
       const link = document.createElement("a");
       link.download = `robot-webcam-snapshot-${new Date()
         .toISOString()
@@ -213,33 +213,72 @@ const RobotVideoFeed = ({ backendUrl, isConnected }) => {
 
     socket.on("stream", (imageData) => {
       try {
-        if (viewerRef.current) {
-          viewerRef.current.src = imageData;
+        if (canvasRef.current) {
+          const canvas = canvasRef.current;
+          const ctx = canvas.getContext("2d");
+
+          // Create a new image element
+          const img = new Image();
+
+          // Set up the image load handler before setting src
+          img.onload = () => {
+            // Use requestAnimationFrame for smoother rendering
+            requestAnimationFrame(() => {
+              // Set canvas size to match image (only if different)
+              if (canvas.width !== img.width || canvas.height !== img.height) {
+                canvas.width = img.width;
+                canvas.height = img.height;
+              }
+
+              // Draw the image on canvas
+              ctx.drawImage(img, 0, 0);
+
+              // Update stats after successful frame render
+              frameCountRef.current += 1;
+              setFrameCount(frameCountRef.current);
+
+              // Update FPS
+              updateFPS();
+
+              // Show stream if hidden
+              if (!isStreamVisible) {
+                showStream();
+              }
+
+              // Update data rate every 30 frames
+              if (frameCountRef.current % 30 === 0) {
+                updateDataRate();
+              }
+
+              // Update quality info
+              if (showQuality) {
+                const sizeKB = (imageData.length / 1024).toFixed(1);
+                setQualityInfo(`Size: ${sizeKB} KB`);
+              }
+
+              // Debug frame timing every 60 frames
+              if (frameCountRef.current % 60 === 0) {
+                addDebugLog(
+                  `📊 Frame ${
+                    frameCountRef.current
+                  } - FPS: ${currentFps} - Size: ${(
+                    imageData.length / 1024
+                  ).toFixed(1)} KB`
+                );
+              }
+            });
+          };
+
+          img.onerror = (error) => {
+            addDebugLog(`❌ Image load error: ${error.message}`);
+          };
+
+          // Set the data URL - this should be done after setting up the handlers
+          img.src = imageData;
         }
 
-        // Update stats
-        frameCountRef.current += 1;
-        setFrameCount(frameCountRef.current);
+        // Update data transferred
         dataTransferredRef.current += imageData.length;
-
-        // Update FPS
-        updateFPS();
-
-        // Show stream if hidden
-        if (!isStreamVisible) {
-          showStream();
-        }
-
-        // Update data rate every 30 frames
-        if (frameCountRef.current % 30 === 0) {
-          updateDataRate();
-        }
-
-        // Update quality info
-        if (showQuality) {
-          const sizeKB = (imageData.length / 1024).toFixed(1);
-          setQualityInfo(`Size: ${sizeKB} KB`);
-        }
       } catch (error) {
         addDebugLog(`❌ Stream error: ${error.message}`);
       }
@@ -329,12 +368,11 @@ const RobotVideoFeed = ({ backendUrl, isConnected }) => {
           </div>
         ) : (
           <>
-            <img
-              ref={viewerRef}
+            <canvas
+              ref={canvasRef}
               className={`video-stream ${
                 isStreamVisible ? "visible" : "hidden"
               }`}
-              alt="Robot webcam feed"
               style={{
                 display: isStreamVisible ? "block" : "none",
                 width: "100%",

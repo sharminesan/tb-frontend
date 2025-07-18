@@ -326,10 +326,10 @@ export default function Dashboard() {
                   {connectionStatus}
                 </div>
               </div>
-              <div className="status-item">
+              {/* <div className="status-item">
                 <div className="status-title">Battery</div>
                 <div className="status-value">{batteryStatus}</div>
-              </div>
+              </div> */}
               <div className="status-item">
                 <div className="status-title">User</div>
                 <div className="status-value">
