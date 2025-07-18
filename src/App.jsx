@@ -28,14 +28,7 @@ function App() {
               {" "}
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route
-                path="/settings"
-                element={
-                  <ProtectedRoute>
-                    <Settings />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/settings" element={<Settings />} />
               <Route
                 path="/verify-otp"
                 element={
