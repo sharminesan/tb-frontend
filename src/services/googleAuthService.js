@@ -4,14 +4,33 @@ import { getAuth } from "firebase/auth";
 class GoogleAuthService {
   constructor() {
     this.baseUrl = null;
-    this.setBackendUrl(
-      import.meta.env.VITE_BACKEND_URL || "http://localhost:4000"
-    );
+    // Initialize with backend URL from settings
+    this.setBackendUrl(this.getBackendUrlFromSettings());
+  }
+
+  // Get backend URL from settings (same as BackendContext)
+  getBackendUrlFromSettings() {
+    try {
+      // Get from localStorage (same key as BackendContext)
+      const savedUrl = localStorage.getItem("turtlebot_backend_url");
+      return (
+        savedUrl || import.meta.env.VITE_BACKEND_URL || "http://localhost:4000"
+      );
+    } catch (error) {
+      console.warn("Error reading backend URL from settings:", error);
+      return import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
+    }
   }
 
   // Set the backend URL dynamically
   setBackendUrl(url) {
     this.baseUrl = `${url}/api/google-auth`;
+  }
+
+  // Update backend URL from settings (call this when settings change)
+  updateFromSettings() {
+    const newUrl = this.getBackendUrlFromSettings();
+    this.setBackendUrl(newUrl);
   }
 
   // Get authentication headers with Firebase token
@@ -32,6 +51,9 @@ class GoogleAuthService {
 
   // Setup Google Authenticator - Generate QR code
   async setupGoogleAuth() {
+    // Ensure we have the latest backend URL from settings
+    this.updateFromSettings();
+
     const headers = await this.getAuthHeaders();
 
     const response = await fetch(`${this.baseUrl}/setup`, {
@@ -49,6 +71,8 @@ class GoogleAuthService {
 
   // Verify and enable Google Authenticator
   async verifySetup(token) {
+    this.updateFromSettings();
+
     const headers = await this.getAuthHeaders();
 
     const response = await fetch(`${this.baseUrl}/verify-setup`, {
@@ -67,6 +91,8 @@ class GoogleAuthService {
 
   // Verify TOTP for login/access
   async verifyTOTP(token, backupCode = null) {
+    this.updateFromSettings();
+
     const headers = await this.getAuthHeaders();
 
     const body = backupCode ? { backupCode } : { token };
@@ -87,6 +113,8 @@ class GoogleAuthService {
 
   // Check 2FA status
   async getStatus() {
+    this.updateFromSettings();
+
     const headers = await this.getAuthHeaders();
 
     const response = await fetch(`${this.baseUrl}/status`, {
@@ -110,6 +138,8 @@ class GoogleAuthService {
       );
     }
 
+    this.updateFromSettings();
+
     const headers = await this.getAuthHeaders();
 
     const response = await fetch(`${this.baseUrl}/disable`, {
@@ -132,6 +162,8 @@ class GoogleAuthService {
 
   // Get backup codes
   async getBackupCodes() {
+    this.updateFromSettings();
+
     const headers = await this.getAuthHeaders();
 
     const response = await fetch(`${this.baseUrl}/backup-codes`, {
@@ -149,6 +181,8 @@ class GoogleAuthService {
 
   // Regenerate backup codes
   async regenerateBackupCodes(token) {
+    this.updateFromSettings();
+
     const headers = await this.getAuthHeaders();
 
     const response = await fetch(`${this.baseUrl}/regenerate-backup-codes`, {
