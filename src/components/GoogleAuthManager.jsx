@@ -27,13 +27,10 @@ export default function GoogleAuthManager() {
   const googleAuthService = new GoogleAuthService();
 
   useEffect(() => {
-    // Update the service URL when backend URL changes
-    googleAuthService.setBackendUrl(backendUrl);
-
     if (currentUser) {
       checkTwoFactorStatus();
     }
-  }, [currentUser, backendUrl]);
+  }, [currentUser]);
 
   const checkTwoFactorStatus = async () => {
     try {
